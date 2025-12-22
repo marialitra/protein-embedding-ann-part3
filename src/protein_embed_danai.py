@@ -1,6 +1,11 @@
 from libraries import torch, os, np, esm, SeqIO
 import argparse
 
+# Set optimal CPU settings
+os.environ['OMP_NUM_THREADS'] = '4'
+os.environ['MKL_NUM_THREADS'] = '4'
+torch.set_num_threads(4)
+
 # -----------------------------
 # 0. Configuration
 # -----------------------------
@@ -11,6 +16,7 @@ def main():
     parser.add_argument('-model', '--model', type=str, default='esm2_t6_8M_UR50D', help='ESM2 model name')
     parser.add_argument('--batch-size', type=int, default=64, help='Batch size for processing')
     parser.add_argument('--max-len', type=int, default=1022, help='Maximum sequence length')
+    parser.add_argument('--num-threads', type=int, default=0, help='Number of CPU threads (0=auto)')
     
     args = parser.parse_args()
     
@@ -21,6 +27,10 @@ def main():
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     MAX_ID_LEN = 50  # max characters per ID
     EMBED_DIM = 320  # esm2_t6_8M_UR50D
+    
+    # CPU optimization: set number of threads (optimal is usually 4-8 for inference)
+    if args.num_threads > 0:
+        torch.set_num_threads(args.num_threads)
 
     os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
 
@@ -68,7 +78,7 @@ def main():
     # -----------------------------
     def id_to_float_array(protein_id, max_len=MAX_ID_LEN):
         """Convert string ID to float32 array of fixed length."""
-        b = protein_id.encode('ascii', errors='replace')[:max_len]  # bytes
+        b = protein_id.encode('ascii', errors='replace')[:max_len]
         arr = np.zeros(max_len, dtype='float32')
         arr[:len(b)] = np.frombuffer(b, dtype=np.uint8)
         return arr
