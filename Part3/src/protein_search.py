@@ -9,6 +9,61 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "Algorithms"
 from runSearchExe import build_executable, run_ivfflat
 
 
+def remap_output_ids(output_txt: str, base_ids_txt: str, query_ids_txt: str):
+	"""Remap numeric indices in output to actual protein IDs."""
+	if not os.path.exists(output_txt):
+		return
+	
+	# Load ID mappings
+	base_ids = []
+	if os.path.exists(base_ids_txt):
+		with open(base_ids_txt, 'r') as f:
+			base_ids = [line.strip() for line in f if line.strip()]
+	
+	query_ids = []
+	if os.path.exists(query_ids_txt):
+		with open(query_ids_txt, 'r') as f:
+			query_ids = [line.strip() for line in f if line.strip()]
+	
+	if not base_ids and not query_ids:
+		return
+	
+	# Read and remap output
+	with open(output_txt, 'r') as f:
+		lines = f.readlines()
+	
+	remapped_lines = []
+	for line in lines:
+		if line.startswith("Query:"):
+			# Extract query index and remap to ID
+			parts = line.split()
+			if len(parts) >= 2:
+				try:
+					idx = int(parts[1])
+					if 0 <= idx < len(query_ids):
+						line = f"Query: {query_ids[idx]}\n"
+				except (ValueError, IndexError):
+					pass
+		elif line.startswith("Nearest neighbor"):
+			# Extract neighbor index and remap to ID
+			parts = line.split()
+			if len(parts) >= 2:
+				try:
+					idx = int(parts[-1])
+					if 0 <= idx < len(base_ids):
+						prefix = " ".join(parts[:-1])
+						line = f"{prefix} {base_ids[idx]}\n"
+				except (ValueError, IndexError):
+					pass
+		remapped_lines.append(line)
+	
+	# Write back
+	with open(output_txt, 'w') as f:
+		f.writelines(remapped_lines)
+	
+	print(f"[protein_search] Remapped indices to protein IDs in {output_txt}")
+
+
 def run_nlsh_pipeline(
 	base_dat: str,
 	query_dat: str,
@@ -79,6 +134,12 @@ def run_nlsh_pipeline(
 
 	print("[protein_search] Running NLSH search on protein data ...")
 	subprocess.run(search_cmd, check=True, cwd=alg_root)
+	
+	# Remap output IDs
+	base_ids_txt = base_dat.replace(".dat", "_ids.txt")
+	query_ids_txt = query_dat.replace(".dat", "_ids.txt")
+	remap_output_ids(output_txt, base_ids_txt, query_ids_txt)
+	
 	return index_dir
 
 
@@ -124,6 +185,55 @@ def run_protein_search(
 		method: ANN algorithm to use ('lsh', 'hypercube', 'ivfflat', 'ivfpq', 'nlsh')
 	"""
 
+	# Handle 'all' method by recursively calling for each algorithm
+	if method.lower() == "all":
+		all_methods = ["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"]
+		base_output = os.path.splitext(output_txt)[0]
+		
+		for algo in all_methods:
+			algo_output = f"{base_output}_{algo}.txt"
+			print(f"\n{'='*60}")
+			print(f"[protein_search] Running method: {algo.upper()}")
+			print(f"{'='*60}")
+			
+			try:
+				run_protein_search(
+					base_dat=base_dat,
+					query_fasta=query_fasta,
+					output_txt=algo_output,
+					method=algo,
+					N=N,
+					R=R,
+					seed=seed,
+					kclusters=kclusters,
+					nprobe=nprobe,
+					k=k,
+					L=L,
+					w=w,
+					kproj=kproj,
+					M=M,
+					probes=probes,
+					nbits=nbits,
+					nlsh_index=nlsh_index,
+					nlsh_T=nlsh_T,
+					nlsh_m=nlsh_m,
+					nlsh_imbalance=nlsh_imbalance,
+					nlsh_kahip_mode=nlsh_kahip_mode,
+					nlsh_layers=nlsh_layers,
+					nlsh_nodes=nlsh_nodes,
+					nlsh_epochs=nlsh_epochs,
+					nlsh_batch_size=nlsh_batch_size,
+					nlsh_lr=nlsh_lr,
+				)
+			except Exception as e:
+				print(f"[protein_search] ERROR running {algo.upper()}: {e}")
+				continue
+		
+		print(f"\n{'='*60}")
+		print(f"[protein_search] All methods complete!")
+		print(f"{'='*60}")
+		return
+	
 	# 1. Create query .dat using protein_embed
 	embed_py = os.path.join(os.path.dirname(__file__), "protein_embed.py")
 	query_dat = os.path.splitext(output_txt)[0] + ".queries.dat"
@@ -207,6 +317,12 @@ def run_protein_search(
 
 	print(f"[protein_search] Running {method.upper()} on protein data ...")
 	run_ivfflat(cmd)
+	
+	# Remap output IDs
+	base_ids_txt = base_dat.replace(".dat", "_ids.txt")
+	query_ids_txt = query_dat.replace(".dat", "_ids.txt")
+	remap_output_ids(output_txt, base_ids_txt, query_ids_txt)
+	
 	print(f"[protein_search] Done. Results at: {output_txt}")
 
 
@@ -215,8 +331,8 @@ def main():
 	parser.add_argument("--base-dat", required=True, help="Path to base protein vectors .dat (float32 N x 320)")
 	parser.add_argument("--query-fasta", required=True, help="Path to FASTA with query sequences")
 	parser.add_argument("-o", "--output", required=True, help="Output neighbors file (text)")
-	parser.add_argument("--method", type=str, default="ivfflat", choices=["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"],
-						help="ANN algorithm to use")
+	parser.add_argument("--method", type=str, default="ivfflat", choices=["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh", "all"],
+						help="ANN algorithm to use (or 'all' to run all methods)")
 	parser.add_argument("-N", type=int, default=10, help="Number of nearest neighbors")
 	parser.add_argument("-R", type=float, default=0.5, help="Range search radius (for range search mode)")
 	parser.add_argument("--seed", type=int, default=42, help="Random seed")
