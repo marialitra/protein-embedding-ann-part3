@@ -337,10 +337,8 @@ IVFPQIndex* ivfpq_init(Dataset* dataset, int k_clusters, int M, int nbits, bool 
     index->data_type = dataset->data_type;
     index->dataset = dataset;
     index->use_cosine = use_cosine;
-    
     // Step 1 & 2: Run Lloyd's to get coarse centroids (reuse IVFFlat logic)
     // printf("Step 1-2: Computing coarse centroids with Lloyd's algorithm...\n");
-    // Pass cosine metric to coarse quantizer if protein dataset
     IVFFlatIndex* ivf_temp = ivfflat_init(dataset, k_clusters, use_cosine);
     if (!ivf_temp)
     {
@@ -592,9 +590,7 @@ void ivfpq_index_lookup(const void* q_void, const struct SearchParams* params, i
     MinHeap* centroid_heap = heap_create(nprobe);
     for (int i = 0; i < k; i++)
     {
-        double dist = index->use_cosine 
-            ? cosine_distance(q_void, index->centroids[i], d, index->data_type, DATA_TYPE_FLOAT)
-            : norm(q_void, index->centroids[i], d, index->data_type, DATA_TYPE_FLOAT);
+        double dist = norm(q_void, index->centroids[i], d, index->data_type, DATA_TYPE_FLOAT);
         heap_insert(centroid_heap, i, dist);
     }
     // Extract in ascending order of distance (nearest first)
@@ -673,11 +669,9 @@ void ivfpq_index_lookup(const void* q_void, const struct SearchParams* params, i
     for (int i = 0; i < *approx_count; i++)
     {
         approx_neighbors[i] = approx_neighbors_adc[i];
-        // Compute exact distance to the selected neighbor using appropriate metric
+        // Compute exact Euclidean distance to the selected neighbor
         void* point = index->dataset->data[approx_neighbors_adc[i]];
-        approx_dists[i] = index->use_cosine 
-            ? cosine_distance(q_void, point, d, index->data_type, index->data_type)
-            : euclidean_distance(q_void, point, d, index->data_type, index->data_type);
+        approx_dists[i] = euclidean_distance(q_void, point, d, index->data_type, index->data_type);
     }
 
     
@@ -761,9 +755,7 @@ void range_search_ivfpq(const void* q_void, const struct SearchParams* params, i
     MinHeap* centroid_heap = heap_create(nprobe);
     for (int i = 0; i < k; i++)
     {
-        double dist = index->use_cosine
-            ? cosine_distance(q_void, index->centroids[i], d, index->data_type, DATA_TYPE_FLOAT)
-            : euclidean_distance(q_void, index->centroids[i], d, index->data_type, DATA_TYPE_FLOAT);
+        double dist = euclidean_distance(q_void, index->centroids[i], d, index->data_type, DATA_TYPE_FLOAT);
         heap_insert(centroid_heap, i, dist);
     }
 

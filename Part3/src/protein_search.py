@@ -136,7 +136,10 @@ def run_nlsh_pipeline(
 	subprocess.run(search_cmd, check=True, cwd=alg_root)
 	
 	# Remap output IDs
-	base_ids_txt = base_dat.replace(".dat", "_ids.txt")
+	# Try .txt file first (e.g., vectors_50k_opt.txt), fallback to _ids.txt
+	base_ids_txt = base_dat.replace(".dat", ".txt")
+	if not os.path.exists(base_ids_txt):
+		base_ids_txt = base_dat.replace(".dat", "_ids.txt")
 	query_ids_txt = query_dat.replace(".dat", "_ids.txt")
 	remap_output_ids(output_txt, base_ids_txt, query_ids_txt)
 	
@@ -319,7 +322,10 @@ def run_protein_search(
 	run_ivfflat(cmd)
 	
 	# Remap output IDs
-	base_ids_txt = base_dat.replace(".dat", "_ids.txt")
+	# Try .txt file first (e.g., vectors_50k_opt.txt), fallback to _ids.txt
+	base_ids_txt = base_dat.replace(".dat", ".txt")
+	if not os.path.exists(base_ids_txt):
+		base_ids_txt = base_dat.replace(".dat", "_ids.txt")
 	query_ids_txt = query_dat.replace(".dat", "_ids.txt")
 	remap_output_ids(output_txt, base_ids_txt, query_ids_txt)
 	
@@ -338,8 +344,8 @@ def main():
 	parser.add_argument("--seed", type=int, default=42, help="Random seed")
 	
 	# IVFFlat / IVFPQ params
-	parser.add_argument("--kclusters", type=int, default=1024, help="Number of clusters (ivfflat/ivfpq)")
-	parser.add_argument("--nprobe", type=int, default=10, help="Number of probes (ivfflat/ivfpq)")
+	parser.add_argument("--kclusters", type=int, default=50, help="Number of clusters (ivfflat/ivfpq)")
+	parser.add_argument("--nprobe", type=int, default=5, help="Number of probes (ivfflat/ivfpq)")
 	
 	# LSH params
 	parser.add_argument("-k", type=int, default=4, help="Hash functions per table (lsh)")
@@ -348,7 +354,7 @@ def main():
 	
 	# Hypercube params
 	parser.add_argument("--kproj", type=int, default=12, help="Number of projections (hypercube)")
-	parser.add_argument("-M", type=int, default=5000, help="Max candidates to check (hypercube) or subvectors (ivfpq)")
+	parser.add_argument("-M", type=int, default=8, help="Max candidates to check (hypercube) or subvectors (ivfpq)")
 	parser.add_argument("--probes", type=int, default=10, help="Vertices to examine (hypercube)")
 	
 	# IVFPQ specific

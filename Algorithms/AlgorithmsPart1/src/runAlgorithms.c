@@ -116,7 +116,8 @@ void run_ivfpq(SearchParams* params, Dataset* dataset)
     int nbits = params->nbits;
     
     // printf("Building IVFPQ index with k=%d clusters, M=%d subspaces, nbits=%d...\n", params->kclusters, M, nbits);
-    bool use_cosine = (params->dataset_type == DATA_PROTEIN);
+    // IVFPQ uses Euclidean distance on raw data (residual quantization incompatible with cosine)
+    bool use_cosine = false;
     IVFPQIndex* ivfpq_index = ivfpq_init(dataset, params->kclusters, M, nbits, use_cosine);
     if (!ivfpq_index)
     {
@@ -130,6 +131,8 @@ void run_ivfpq(SearchParams* params, Dataset* dataset)
         query_set = read_data_mnist(params->query_path);
     else if (params->dataset_type == DATA_SIFT)
         query_set = read_data_sift(params->query_path);
+    else if (params->dataset_type == DATA_PROTEIN)
+        query_set = read_data_protein(params->query_path);
     
     if (query_set)
     {
