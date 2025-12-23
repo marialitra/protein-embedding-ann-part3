@@ -13,6 +13,8 @@ int main(int argc, char **argv)
         dataset = read_data_mnist(params.dataset_path);
     else if(params.dataset_type == DATA_SIFT)
         dataset = read_data_sift(params.dataset_path);
+    else if(params.dataset_type == DATA_PROTEIN)
+        dataset = read_data_protein(params.dataset_path);
         
     if (dataset == NULL)
     {
@@ -24,6 +26,8 @@ int main(int argc, char **argv)
         printf("MNIST Dataset loaded: %d points of dimension %d\n", dataset->size, dataset->dimension);
     else if(params.dataset_type == DATA_SIFT)
         printf("SIFT Dataset loaded: %d points of dimension %d\n", dataset->size, dataset->dimension);
+    else if(params.dataset_type == DATA_PROTEIN)
+        printf("PROTEIN Dataset loaded: %d points of dimension %d (metric: cosine)\n", dataset->size, dataset->dimension);
 
     unsigned int seed = 42;
     if (params.seed)

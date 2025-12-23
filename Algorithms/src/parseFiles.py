@@ -129,3 +129,39 @@ def load_sift_vectors(filepath: str, dtype=np.float32) -> tuple[np.ndarray, int,
     n_vectors = file_size // item_size
 
     return data_vectors, n_vectors, 1, dim
+
+
+def load_protein_vectors(filepath: str, embed_dim: int = 320, id_extra: int = 50, dtype=np.float32) -> tuple[np.ndarray, int, int, int]:
+    """
+        Load protein vectors from a .dat file (float32).
+        Supports two layouts:
+        - N x 320 floats
+        - N x (320 + id_extra) floats (last id_extra slots store ASCII IDs as float bytes)
+
+        Returns (data, n_vectors, 1, embed_dim) shaped (N,1,1,embed_dim).
+    """
+    if not libraries.os.path.exists(filepath):
+        raise FileNotFoundError(f"Protein .dat file not found: {filepath}")
+
+    mm = np.memmap(filepath, dtype=dtype, mode="r")
+    total_floats = mm.size
+
+    cols_primary = embed_dim
+    cols_with_ids = embed_dim + id_extra
+
+    if total_floats % cols_primary == 0:
+        cols = cols_primary
+    elif total_floats % cols_with_ids == 0:
+        cols = cols_with_ids
+    else:
+        raise ValueError(
+            f"Unexpected protein .dat layout: {total_floats} floats not divisible by {cols_primary} or {cols_with_ids}"
+        )
+
+    n_rows = total_floats // cols
+    mat = mm.reshape(n_rows, cols)
+    mat = mat[:, :embed_dim]  # drop ID columns if present
+
+    # Shape to (N, 1, 1, D) to align with existing pipelines
+    data_vectors = mat.reshape(n_rows, 1, 1, embed_dim)
+    return data_vectors, n_rows, 1, embed_dim

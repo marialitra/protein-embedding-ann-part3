@@ -1,11 +1,11 @@
 import libraries
-from libraries import Tuple, Dict, List, np, nn, counter, load_sift_vectors, load_idx_images, mnist_train, sift_train, parse_neighbor_file, build_csr_from_neighbors, save_builds_output, _slug, build_executable, run_ivfflat, validate_args
+from libraries import Tuple, Dict, List, np, nn, counter, load_sift_vectors, load_idx_images, load_protein_vectors, mnist_train, sift_train, protein_train, parse_neighbor_file, build_csr_from_neighbors, save_builds_output, _slug, build_executable, run_ivfflat, validate_args
 
 def main():
     p = libraries.argparse.ArgumentParser(description="Build adjacency matrix (CSR) from neighbor TXT files.")
     p.add_argument("-d", "--dataset", required=True, type=str, help="Path to input file")
     p.add_argument("-i", "--index", required=True, type=str, help="Path to index file")
-    p.add_argument("--type", required=True, type=str, help="Dataset type (MNIST or SIFT)")
+    p.add_argument("--type", required=True, type=str, help="Dataset type (MNIST, SIFT, or PROTEIN)")
     p.add_argument("--knn", type=int, default=10, help="Number of neighbors")
     p.add_argument("-m", type=int, default=100, help="Number of blocks/parts for KaHIP")
     p.add_argument("--imbalance", type=float, default=0.03, help="Imbalance for KaHIP")
@@ -25,22 +25,27 @@ def main():
     dataset_type = args.type
     print(f"The specified dataset type is: {dataset_type}")
 
-    # Load data: MNIST-IDX images or SIFT vectors
+    # Load data: MNIST-IDX images, SIFT vectors, or Protein .dat vectors
     if dataset_type and dataset_type.lower().startswith('sift'):
         data_vectors, num_images, img_rows, img_cols = load_sift_vectors(args.dataset)
         dataset_type = "sift"
-        root = int( np.sqrt(num_images) )
-        kclusters = str(root * 2 )
-        n_probe = str( int(kclusters)//400  if int(kclusters)//400 > 1 else 2 )
+        root = int(np.sqrt(num_images))
+        kclusters = str(root * 2)
+        n_probe = str(int(kclusters) // 400 if int(kclusters) // 400 > 1 else 2)
     elif dataset_type and dataset_type.lower().startswith('mnist'):
         data_vectors, num_images, img_rows, img_cols = load_idx_images(args.dataset)
-        root = int( np.sqrt(num_images) )
+        root = int(np.sqrt(num_images))
         dataset_type = "mnist"
-        kclusters = str(root * 2 )
-        n_probe = str( int(kclusters)//95  if int(kclusters)//95 > 1 else 2 )
+        kclusters = str(root * 2)
+        n_probe = str(int(kclusters) // 95 if int(kclusters) // 95 > 1 else 2)
+    elif dataset_type and dataset_type.lower().startswith('protein'):
+        data_vectors, num_images, img_rows, img_cols = load_protein_vectors(args.dataset)
+        dataset_type = "protein"
+        root = int(np.sqrt(num_images))
+        kclusters = str(root * 2)
+        n_probe = str(int(kclusters) // 400 if int(kclusters) // 400 > 1 else 2)
     else:
-        print("Not acceptable dataset type")
-        exit()
+        raise SystemExit("Not acceptable dataset type")
 
     # Build or load the kNN graph using IVFFLAT
     output_dir = "knngraphs"
@@ -94,8 +99,9 @@ def main():
     # ---- Train the model based on dataset type ----
     if dataset_type and dataset_type.lower().startswith('sift'):
         model = sift_train(args, img_rows, img_cols, X, y)
+    elif dataset_type and dataset_type.lower().startswith('protein'):
+        model = protein_train(args, img_rows, img_cols, X, y)
     else:
-        # Train the new CNN model, passing image dimensions
         model = mnist_train(args, img_rows, img_cols, X, y)
 
     libraries.os.makedirs(args.index, exist_ok=True)

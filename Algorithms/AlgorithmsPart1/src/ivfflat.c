@@ -35,7 +35,9 @@ void assign_points_to_clusters(IVFFlatIndex* index, Dataset* dataset, int start,
         // Find nearest centroid
         for (int t = 0; t < k; t++)
         {
-            double dist = norm(vec, index->centroids[t], d, data_type, DATA_TYPE_FLOAT);
+            double dist = index->use_cosine
+                ? cosine_distance(vec, index->centroids[t], d, data_type, DATA_TYPE_FLOAT)
+                : norm(vec, index->centroids[t], d, data_type, DATA_TYPE_FLOAT);
             if (dist < best_dist)
             {
                 best_dist = dist;
@@ -162,7 +164,11 @@ bool recompute_centroids(IVFFlatIndex* index, int d, double epsilon)
         for (int j = 0; j < d; j++)
             new_centroid[j] /= (list->count > 0 ? list->count : 1);
 
-        // Check centroid shift
+        // If using cosine metric, normalize centroid (spherical k-means)
+        if (index->use_cosine)
+            normalize_vector(new_centroid, d);
+
+        // Check centroid shift (euclidean on centroids is ok as a convergence proxy)
         double shift = euclidean_distance(index->centroids[t], new_centroid, d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
         if (shift > epsilon)
         {
@@ -476,7 +482,7 @@ centroidInfo* runKmeans(Dataset* subset, int kclusters)
     return info;
 }
 
-IVFFlatIndex* lloydAlgorithm(Dataset* subset, int kclusters)
+IVFFlatIndex* lloydAlgorithm(Dataset* subset, int kclusters, bool use_cosine)
 {
     centroidInfo* info = runKmeans(subset, kclusters);
     int max_iters = 50;
@@ -493,6 +499,7 @@ IVFFlatIndex* lloydAlgorithm(Dataset* subset, int kclusters)
     index->centroids = info->centroids;
     index->data_type = subset->data_type;
     index->lists = calloc(kclusters, sizeof(InvertedList));
+        index->use_cosine = use_cosine;
     if (!index->lists)
     {
         perror("calloc lists");
@@ -525,12 +532,12 @@ IVFFlatIndex* lloydAlgorithm(Dataset* subset, int kclusters)
     return index;
 }
 
-IVFFlatIndex* ivfflat_init(Dataset* dataset, int kclusters)
+IVFFlatIndex* ivfflat_init(Dataset* dataset, int kclusters, bool use_cosine)
 {
     int subsetSize = findSubsetSize(dataset->size);
     Dataset* subset = createSubset(dataset, subsetSize); // Produces the X'
 
-    IVFFlatIndex* ivfflat_index = lloydAlgorithm(subset, kclusters);
+    IVFFlatIndex* ivfflat_index = lloydAlgorithm(subset, kclusters, use_cosine);
 
 
     // Now assign ALL points from the full dataset to the corresponding centroids
@@ -575,10 +582,20 @@ void ivfflat_index_lookup(const void* q_void, const struct SearchParams* params,
     for (int i = 0; i < k; i++)
     {
         double cent;
-        if (qf)
-            cent = norm(qf, index->centroids[i], d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
+        if (index->use_cosine)
+        {
+            if (qf)
+                cent = cosine_distance(qf, index->centroids[i], d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
+            else
+                cent = cosine_distance(qi, index->centroids[i], d, DATA_TYPE_UINT8, DATA_TYPE_FLOAT);
+        }
         else
-            cent = norm(qi, index->centroids[i], d, DATA_TYPE_UINT8, DATA_TYPE_FLOAT);
+        {
+            if (qf)
+                cent = norm(qf, index->centroids[i], d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
+            else
+                cent = norm(qi, index->centroids[i], d, DATA_TYPE_UINT8, DATA_TYPE_FLOAT);
+        }
 
         int j = 0;
         if (selected < nprobe)
@@ -618,7 +635,10 @@ void ivfflat_index_lookup(const void* q_void, const struct SearchParams* params,
             void* vec = list->points[i];
             double dist;
 
-            if (index->data_type == DATA_TYPE_FLOAT)
+            if (index->use_cosine)
+                dist = cosine_distance(qf ? (const void*)qf : (const void*)qi, vec, d,
+                                       qf ? DATA_TYPE_FLOAT : DATA_TYPE_UINT8, index->data_type);
+            else if (index->data_type == DATA_TYPE_FLOAT)
                 dist = euclidean_distance(qf, vec, d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
             else
                 dist = euclidean_distance(qi, vec, d, DATA_TYPE_UINT8, DATA_TYPE_UINT8);
@@ -669,10 +689,20 @@ void range_search_ivfflat(const void* q_void, const struct SearchParams* params,
     for (int i = 0; i < k; i++)
     {
         double cent;
-        if (qf)
-            cent = norm(qf, index->centroids[i], d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
+        if (index->use_cosine)
+        {
+            if (qf)
+                cent = cosine_distance(qf, index->centroids[i], d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
+            else
+                cent = cosine_distance(qi, index->centroids[i], d, DATA_TYPE_UINT8, DATA_TYPE_FLOAT);
+        }
         else
-            cent = norm(qi, index->centroids[i], d, DATA_TYPE_UINT8, DATA_TYPE_FLOAT);
+        {
+            if (qf)
+                cent = norm(qf, index->centroids[i], d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
+            else
+                cent = norm(qi, index->centroids[i], d, DATA_TYPE_UINT8, DATA_TYPE_FLOAT);
+        }
 
         int j = 0;
         if (selected < nprobe)
@@ -713,7 +743,10 @@ void range_search_ivfflat(const void* q_void, const struct SearchParams* params,
             void* vec = list->points[i];
             double dist;
 
-            if (index->data_type == DATA_TYPE_FLOAT)
+            if (index->use_cosine)
+                dist = cosine_distance(qf ? (const void*)qf : (const void*)qi, vec, d,
+                                       qf ? DATA_TYPE_FLOAT : DATA_TYPE_UINT8, index->data_type);
+            else if (index->data_type == DATA_TYPE_FLOAT)
                 dist = euclidean_distance(qf, vec, d, DATA_TYPE_FLOAT, DATA_TYPE_FLOAT);
             else
                 dist = euclidean_distance(qi, vec, d, DATA_TYPE_UINT8, DATA_TYPE_UINT8);

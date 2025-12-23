@@ -25,8 +25,8 @@ from sklearn.model_selection import KFold
 
 # Import from user-defined files
 from dataset_utils import make_sift_dataloaders
-from neural_net import CNNClassifier, MLPClassifier, mnist_train, sift_train
-from parseFiles import load_idx_images, load_sift_vectors, parse_neighbor_file
+from neural_net import CNNClassifier, MLPClassifier, mnist_train, sift_train, protein_train
+from parseFiles import load_idx_images, load_sift_vectors, load_protein_vectors, parse_neighbor_file
 from utils import build_csr_from_neighbors, save_builds_output, _slug, load_data, validate_args
 from runSearchExe import build_executable, run_ivfflat
 from nlsh_core import neural_lsh

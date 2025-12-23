@@ -11,12 +11,13 @@ typedef enum
     ALG_IVFPQ
 } AlgorithmType;
 
-// Enumeration for dataset types: MNIST, SIFT and none
+// Enumeration for dataset types: MNIST, SIFT, PROTEIN and none
 typedef enum
 {
     DATA_NONE,
     DATA_MNIST,
-    DATA_SIFT
+    DATA_SIFT,
+    DATA_PROTEIN
 } DatasetType;
 
 // Structure to hold all search parameters

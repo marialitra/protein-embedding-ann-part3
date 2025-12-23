@@ -55,7 +55,8 @@ LSH* lsh_init(const struct SearchParams* params, const struct Dataset* dataset)
 
     // Store data type and select distance function
     lsh->data_type = dataset->data_type;
-    lsh->distance = euclidean_distance; // uint8-based distance
+    lsh->use_cosine = (params->dataset_type == DATA_PROTEIN);
+    lsh->distance = lsh->use_cosine ? cosine_distance : euclidean_distance;
 
     // Allocate memory for per-table hash parameters (L x k)
     lsh->hash_params = (LSH_hash_function**)malloc(lsh->L * sizeof(LSH_hash_function*));

@@ -23,6 +23,11 @@ Dataset* read_data_mnist(const char* images_path);
 // Reads SIFT IDX3 image descriptor file (little-endian) and returns a Dataset of floats
 Dataset* read_data_sift(const char* images_path);
 
+// Reads protein vectors from a simple .dat matrix file of float32 with known dimension (e.g., 320)
+// The file layout is assumed row-major: N x D float32 contiguous without headers.
+// D will be inferred from caller context; here we assume 320 by default.
+Dataset* read_data_protein(const char* dat_path);
+
 // Prints first 'size' points of the dataset.
 void printPartialDataset(int size, const Dataset* dataset);
 

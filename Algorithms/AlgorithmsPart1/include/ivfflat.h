@@ -26,6 +26,7 @@ typedef struct
     float** centroids;   // Centroid vectors
     DataType data_type;  // Underlying dataset type (DATA_TYPE_UINT8 or DATA_TYPE_FLOAT)
     InvertedList* lists; // One list per cluster
+    bool use_cosine;     // If true, use cosine distance (spherical k-means / cosine search)
 } IVFFlatIndex;
 
 // Assigns points from the dataset in range [start, end) to their corresponding cluster
@@ -76,10 +77,10 @@ Dataset* createSubset(Dataset* dataset, int subsetSize);
 centroidInfo* runKmeans(Dataset* dataset, int kclusters);
 
 // Implements the Lloyd's algorithm (finds kclusters from subset)
-IVFFlatIndex* lloydAlgorithm(Dataset* subset, int kclusters);
+IVFFlatIndex* lloydAlgorithm(Dataset* subset, int kclusters, bool use_cosine);
 
 // Initializes the ivfflat algorithm
-IVFFlatIndex* ivfflat_init(Dataset* dataset, int kclusters);
+IVFFlatIndex* ivfflat_init(Dataset* dataset, int kclusters, bool use_cosine);
 
 // Performs query for ivfflat
 void ivfflat_index_lookup(const void* q_void, const struct SearchParams* params, int* approx_neighbors,

@@ -20,7 +20,8 @@ Hypercube* hyper_init(const struct SearchParams* params, const struct Dataset* d
     
     // Store data type and select distance function
     hyper->data_type = dataset->data_type;
-    hyper->distance = euclidean_distance; 
+    hyper->use_cosine = (params->dataset_type == DATA_PROTEIN);
+    hyper->distance = hyper->use_cosine ? cosine_distance : euclidean_distance; 
 
     // Initialize hash parameters
     hyper->hash_params = (Hypercube_hash_function*)malloc(hyper->kproj * sizeof(Hypercube_hash_function));

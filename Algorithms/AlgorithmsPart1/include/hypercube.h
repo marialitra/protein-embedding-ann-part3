@@ -25,6 +25,7 @@ typedef struct Hypercube
     int dataset_size;                       // Size of dataset
     DataType data_type;                     // Type of data (DATA_TYPE_UINT8 or DATA_TYPE_FLOAT)
     metric_func distance;                   // Distance metric function
+    bool use_cosine;                        // If true, use cosine distance
     Hypercube_hash_function* hash_params;   // Array of hash parameters
     bin_hash binary_hash_function;          // Single hash function that computes all k bits
     float* thresholds;                      // Average threshold for each projection (for locality-preserving f)

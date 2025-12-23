@@ -1,5 +1,5 @@
 import libraries
-from libraries import Dict, List, Tuple, counter, np, nn, CNNClassifier, MLPClassifier, Optional, load_sift_vectors, load_idx_images
+from libraries import Dict, List, Tuple, counter, np, nn, CNNClassifier, MLPClassifier, Optional, load_sift_vectors, load_idx_images, load_protein_vectors
 
 def validate_args(args):
     errors = []
@@ -109,6 +109,22 @@ def build_csr_from_neighbors(neighbors: Dict[int, List[int]], datasetsize: int =
     vwgt = np.ones(datasetsize, dtype=np.int32)
     return xadj, adjncy, adjwgt, vwgt
 
+def _infer_n_bins_from_model(model: nn.Module, fallback: int) -> int:
+    """Best-effort extraction of output dimension from the classifier."""
+    try:
+        if hasattr(model, "net") and hasattr(model.net, "__len__") and len(model.net) > 0:
+            last = model.net[-1]
+            if hasattr(last, "out_features"):
+                return int(last.out_features)
+        if hasattr(model, "classifier") and hasattr(model.classifier, "__len__") and len(model.classifier) > 0:
+            last = model.classifier[-1]
+            if hasattr(last, "out_features"):
+                return int(last.out_features)
+    except Exception:
+        pass
+    return int(fallback)
+
+
 def save_builds_output(model: nn.Module, out_dir: str, X: np.ndarray, y: np.ndarray, img_rows: int, img_cols: int):
     """
         Save model state_dict and inverted file (mapping block->indices).
@@ -128,10 +144,11 @@ def save_builds_output(model: nn.Module, out_dir: str, X: np.ndarray, y: np.ndar
     print(f"Saved inverted file to {inv_path}")
 
     # Save simple metadata
+    n_bins = _infer_n_bins_from_model(model, fallback=len(unique_labels))
     meta = {
         "n_vectors": int(X.shape[0]),
         "dim": int(X.shape[2] * X.shape[3]),
-        "n_bins": int(len(unique_labels)),
+        "n_bins": n_bins,
         "img_rows": img_rows,
         "img_cols": img_cols
     }
@@ -228,6 +245,7 @@ def load_inverted_file(args, inverted_path: str, img_rows: int, img_cols: int) -
 
     inverted = {}
     is_sift = args.type and args.type.lower().startswith("sift")
+    is_protein = args.type and args.type.lower().startswith("protein")
 
     if libraries.os.path.exists(inverted_path):
         inverted = np.load(inverted_path, allow_pickle=True).item()
@@ -238,42 +256,43 @@ def load_inverted_file(args, inverted_path: str, img_rows: int, img_cols: int) -
     if is_sift:
         # Load SIFT vectors
         X, num_images, num_rows, num_cols = load_sift_vectors(args.dataset)
-        # Checks that everything is fine between the meta data and the actual data
         if img_rows != num_rows:
             raise ValueError(f"Invalid rows number in the images: {img_rows} != {num_rows}")
-        
         if img_cols != num_cols:
             raise ValueError(f"Invalid columns number in the images: {img_cols} != {num_cols}")
 
-        # Load query SIFT vectors 
         Q, num_images, num_rows, num_cols = load_sift_vectors(args.query)
-
-        # Checks that everything is fine between the meta data and the actual data
         if img_rows != num_rows:
             raise ValueError(f"Invalid rows number in the query images: {img_rows} != {num_rows}")
-        
         if img_cols != num_cols:
             raise ValueError(f"Invalid columns number in the query images: {img_cols} != {num_cols}")
+
+    elif is_protein:
+        X, num_images, num_rows, num_cols = load_protein_vectors(args.dataset)
+        if img_rows != num_rows:
+            raise ValueError(f"Invalid rows number in the protein data: {img_rows} != {num_rows}")
+        if img_cols != num_cols:
+            raise ValueError(f"Invalid dimension in the protein data: {img_cols} != {num_cols}")
+
+        Q, num_images, num_rows, num_cols = load_protein_vectors(args.query)
+        if img_rows != num_rows:
+            raise ValueError(f"Invalid rows number in the protein query data: {img_rows} != {num_rows}")
+        if img_cols != num_cols:
+            raise ValueError(f"Invalid dimension in the protein query data: {img_cols} != {num_cols}")
+
     else:
         # Load IDX images (MNIST)
         X, num_images, num_rows, num_cols = load_idx_images(args.dataset)
-
-        # Checks that everything is fine between the meta data and the actual data
         if img_rows != num_rows:
             raise ValueError(f"Invalid rows number in the images: {img_rows} != {num_rows}")
-        
         if img_cols != num_cols:
             raise ValueError(f"Invalid columns number in the images: {img_cols} != {num_cols}")
 
-        # Load query IDX images
         Q, num_images, num_rows, num_cols = load_idx_images(args.query)
-
-        # Checks that everything is fine between the query data and the actual MNIST data
         if img_rows != num_rows:
             raise ValueError(f"Invalid rows number in the query images: {img_rows} != {num_rows}")
-        
         if img_cols != num_cols:
-            raise ValueError(f"Invalid columns number in the query images: {img_cols} != {num_cols}")
+            raise ValueError(f"Invalid columns number in the images: {img_cols} != {num_cols}")
 
     return *normalize_data(X, Q, args), inverted
 
@@ -281,17 +300,17 @@ def normalize_data(X: np.ndarray, Q: np.ndarray, args) -> Tuple[np.ndarray, np.n
     
     # Normalize depending on dataset type.
     # - For image/IDX data (MNIST) scale 0-255 -> 0.0-1.0
-    # - For SIFT (fvecs) do L2 normalization per-vector to match training preprocessing
+    # - For SIFT/Protein data do L2 normalization per-vector to match training preprocessing
     is_sift = args.type and args.type.lower().startswith("sift")
+    is_protein = args.type and args.type.lower().startswith("protein")
 
-    if is_sift:
+    if is_sift or is_protein:
         X = X.astype(np.float32, copy=False)
         Q = Q.astype(np.float32, copy=False)
         X_flat = X.reshape(X.shape[0], -1)
         Q_flat = Q.reshape(Q.shape[0], -1)
 
-        # Preserve raw flattened vectors before L2-normalization so we can
-        # Compute distances in the original (raw) space later.
+        # Preserve raw flattened vectors before L2-normalization
         X_flat_raw = X_flat.copy()
         Q_flat_raw = Q_flat.copy()
 

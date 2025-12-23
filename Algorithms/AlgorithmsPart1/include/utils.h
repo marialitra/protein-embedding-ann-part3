@@ -86,4 +86,35 @@ int hamming_distance(const int* a, const int* b, int d);
 // Returns the first 'probes' neighbors from point 'a' sorted by hamming distance
 void get_hamming_neighbors(uint64_t bucket, int probes, int kproj, uint64_t* neighbors);
 
+// Computes cosine distance = 1 - cos(a,b) for generic input types
+static inline double cosine_distance(const void* a, const void* b, int d, DataType data_typea, DataType data_typeb)
+{
+    double dot = 0.0;
+    double na = 0.0;
+    double nb = 0.0;
+
+    const float* fa = (const float*)a;
+    const float* fb = (const float*)b;
+    const uint8_t* ua = (const uint8_t*)a;
+    const uint8_t* ub = (const uint8_t*)b;
+
+    for (int i = 0; i < d; i++)
+    {
+        double va = (data_typea == DATA_TYPE_FLOAT) ? (double)fa[i] : (double)ua[i];
+        double vb = (data_typeb == DATA_TYPE_FLOAT) ? (double)fb[i] : (double)ub[i];
+        dot += va * vb;
+        na += va * va;
+        nb += vb * vb;
+    }
+
+    if (na == 0.0 || nb == 0.0)
+        return 1.0; // if any vector is zero, define distance as max
+
+    double sim = dot / (sqrt(na) * sqrt(nb));
+    // Clamp numerical errors
+    if (sim > 1.0) sim = 1.0;
+    if (sim < -1.0) sim = -1.0;
+    return 1.0 - sim;
+}
+
 #endif

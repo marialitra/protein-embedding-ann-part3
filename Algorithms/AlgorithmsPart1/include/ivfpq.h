@@ -37,10 +37,11 @@ typedef struct
     IVFPQList* lists;         // One list per cluster
     PQConfig pq;              // Product quantization configuration
     Dataset* dataset;         // Pointer to original dataset for exact distance computation
+    bool use_cosine;          // If true, use cosine distance
 } IVFPQIndex;
 
 // Initialize IVFPQ index
-IVFPQIndex* ivfpq_init(Dataset* dataset, int k_clusters, int M, int nbits);
+IVFPQIndex* ivfpq_init(Dataset* dataset, int k_clusters, int M, int nbits, bool use_cosine);
 
 // Performs lookup using IVFPQ
 void ivfpq_index_lookup(const void* q_void, const struct SearchParams* params, 

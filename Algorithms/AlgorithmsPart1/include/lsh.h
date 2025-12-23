@@ -29,6 +29,7 @@ typedef struct LSH
     uint64_t num_of_buckets;            // Large modulus M for ID composition
     DataType data_type;                 // Type of data (DATA_TYPE_UINT8 or DATA_TYPE_FLOAT)
     metric_func distance;               // Distance function
+    bool use_cosine;                    // If true, use cosine distance
 
     // Per-table hash parameters: for each table (L), we have k hash functions (v, t)
     LSH_hash_function** hash_params;    // 2D Array of hash parameters

@@ -1,0 +1,145 @@
+IVFFlat
+
+Query: 5
+Nearest neighbor-1: 4166
+Nearest neighbor-2: 4907
+Nearest neighbor-3: 5142
+Nearest neighbor-4: 4842
+Nearest neighbor-5: 8181
+Nearest neighbor-6: 5255
+Nearest neighbor-7: 20431
+Nearest neighbor-8: 5703
+Nearest neighbor-9: 1320
+Nearest neighbor-10: 1273
+
+Query: 4
+Nearest neighbor-1: 12857
+Nearest neighbor-2: 9647
+Nearest neighbor-3: 38089
+Nearest neighbor-4: 8530
+Nearest neighbor-5: 38709
+Nearest neighbor-6: 41522
+Nearest neighbor-7: 42398
+Nearest neighbor-8: 38511
+Nearest neighbor-9: 14968
+Nearest neighbor-10: 201
+
+Query: 9
+Nearest neighbor-1: 31096
+Nearest neighbor-2: 31496
+Nearest neighbor-3: 31143
+Nearest neighbor-4: 31170
+Nearest neighbor-5: 31156
+Nearest neighbor-6: 27997
+Nearest neighbor-7: 29904
+Nearest neighbor-8: 30397
+Nearest neighbor-9: 30267
+Nearest neighbor-10: 30426
+
+Query: 6
+Nearest neighbor-1: 4166
+Nearest neighbor-2: 4907
+Nearest neighbor-3: 5142
+Nearest neighbor-4: 4842
+Nearest neighbor-5: 5703
+Nearest neighbor-6: 5255
+Nearest neighbor-7: 23892
+Nearest neighbor-8: 27478
+Nearest neighbor-9: 2155
+Nearest neighbor-10: 21816
+
+Query: 0
+Nearest neighbor-1: 1669
+Nearest neighbor-2: 234
+Nearest neighbor-3: 1679
+Nearest neighbor-4: 3495
+Nearest neighbor-5: 1369
+Nearest neighbor-6: 1183
+Nearest neighbor-7: 235
+Nearest neighbor-8: 674
+Nearest neighbor-9: 2386
+Nearest neighbor-10: 237
+
+Query: 11
+Nearest neighbor-1: 29441
+Nearest neighbor-2: 19567
+Nearest neighbor-3: 19954
+Nearest neighbor-4: 16669
+Nearest neighbor-5: 7910
+Nearest neighbor-6: 17337
+Nearest neighbor-7: 3004
+Nearest neighbor-8: 9405
+Nearest neighbor-9: 17246
+Nearest neighbor-10: 15414
+
+Query: 10
+Nearest neighbor-1: 29441
+Nearest neighbor-2: 19567
+Nearest neighbor-3: 19954
+Nearest neighbor-4: 16669
+Nearest neighbor-5: 7910
+Nearest neighbor-6: 17337
+Nearest neighbor-7: 9405
+Nearest neighbor-8: 3004
+Nearest neighbor-9: 17246
+Nearest neighbor-10: 15414
+
+Query: 7
+Nearest neighbor-1: 9344
+Nearest neighbor-2: 5104
+Nearest neighbor-3: 7499
+Nearest neighbor-4: 13257
+Nearest neighbor-5: 9135
+Nearest neighbor-6: 9231
+Nearest neighbor-7: 13830
+Nearest neighbor-8: 542
+Nearest neighbor-9: 9739
+Nearest neighbor-10: 7439
+
+Query: 8
+Nearest neighbor-1: 10054
+Nearest neighbor-2: 7194
+Nearest neighbor-3: 10784
+Nearest neighbor-4: 7906
+Nearest neighbor-5: 21431
+Nearest neighbor-6: 17320
+Nearest neighbor-7: 19599
+Nearest neighbor-8: 11449
+Nearest neighbor-9: 8349
+Nearest neighbor-10: 23490
+
+Query: 1
+Nearest neighbor-1: 243
+Nearest neighbor-2: 237
+Nearest neighbor-3: 327
+Nearest neighbor-4: 247
+Nearest neighbor-5: 248
+Nearest neighbor-6: 235
+Nearest neighbor-7: 234
+Nearest neighbor-8: 373
+Nearest neighbor-9: 239
+Nearest neighbor-10: 241
+
+Query: 3
+Nearest neighbor-1: 2258
+Nearest neighbor-2: 2618
+Nearest neighbor-3: 22352
+Nearest neighbor-4: 6739
+Nearest neighbor-5: 3552
+Nearest neighbor-6: 5224
+Nearest neighbor-7: 17246
+Nearest neighbor-8: 6586
+Nearest neighbor-9: 13593
+Nearest neighbor-10: 9405
+
+Query: 2
+Nearest neighbor-1: 5177
+Nearest neighbor-2: 199
+Nearest neighbor-3: 5104
+Nearest neighbor-4: 13257
+Nearest neighbor-5: 2961
+Nearest neighbor-6: 3992
+Nearest neighbor-7: 2437
+Nearest neighbor-8: 1074
+Nearest neighbor-9: 7499
+Nearest neighbor-10: 96

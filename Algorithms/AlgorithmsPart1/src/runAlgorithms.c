@@ -15,6 +15,8 @@ void run_lsh(SearchParams* params, Dataset* dataset)
         query_set = read_data_mnist(params->query_path);
     else if (params->dataset_type == DATA_SIFT)
         query_set = read_data_sift(params->query_path);
+    else if (params->dataset_type == DATA_PROTEIN)
+        query_set = read_data_protein(params->query_path);
 
     if (query_set)
     {
@@ -48,6 +50,8 @@ void run_hypercube(SearchParams* params, Dataset* dataset)
         query_set = read_data_mnist(params->query_path);
     else if (params->dataset_type == DATA_SIFT)
         query_set = read_data_sift(params->query_path);
+    else if (params->dataset_type == DATA_PROTEIN)
+        query_set = read_data_protein(params->query_path);
         
     if (query_set)
     {
@@ -69,7 +73,8 @@ void run_hypercube(SearchParams* params, Dataset* dataset)
 void run_ivfflat(SearchParams* params, Dataset* dataset)
 {
     // Build the index
-    IVFFlatIndex* ivf_index = ivfflat_init(dataset, params->kclusters);
+    bool use_cosine = (params->dataset_type == DATA_PROTEIN);
+    IVFFlatIndex* ivf_index = ivfflat_init(dataset, params->kclusters, use_cosine);
     if (!ivf_index)
     {
         fprintf(stderr, "Failed to build IVFFlat index.\n");
@@ -77,14 +82,13 @@ void run_ivfflat(SearchParams* params, Dataset* dataset)
         exit(EXIT_FAILURE);
     }
 
-    // Compute silhouette (prints results internally)
-    // computeSilhouette(ivf_index, dataset);
-
     Dataset* query_set = NULL;
     if (params->dataset_type == DATA_MNIST)
         query_set = read_data_mnist(params->query_path);
     else if (params->dataset_type == DATA_SIFT)
         query_set = read_data_sift(params->query_path);
+    else if (params->dataset_type == DATA_PROTEIN)
+        query_set = read_data_protein(params->query_path);
 
     if (query_set)
     {
@@ -112,17 +116,15 @@ void run_ivfpq(SearchParams* params, Dataset* dataset)
     int nbits = params->nbits;
     
     // printf("Building IVFPQ index with k=%d clusters, M=%d subspaces, nbits=%d...\n", params->kclusters, M, nbits);
-    IVFPQIndex* ivfpq_index = ivfpq_init(dataset, params->kclusters, M, nbits);
+    bool use_cosine = (params->dataset_type == DATA_PROTEIN);
+    IVFPQIndex* ivfpq_index = ivfpq_init(dataset, params->kclusters, M, nbits, use_cosine);
     if (!ivfpq_index)
     {
         fprintf(stderr, "Failed to build IVFPQ index.\n");
 
         exit(EXIT_FAILURE);
     }
-    
-    // Compute silhouette (prints results internally)
-    // computeSilhouette(ivf_index, dataset);
-    
+
     Dataset* query_set = NULL;
     if (params->dataset_type == DATA_MNIST)
         query_set = read_data_mnist(params->query_path);

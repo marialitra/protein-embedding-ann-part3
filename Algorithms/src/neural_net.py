@@ -278,3 +278,9 @@ def sift_train(args, img_rows, img_cols, X, y):
 
     model = model.to("cpu")
     return model
+
+
+def protein_train(args, img_rows, img_cols, X, y):
+    """MLP training path for protein embeddings (float32 vectors)."""
+    # Reuse the SIFT training pipeline (MLP) with the provided args
+    return sift_train(args, img_rows, img_cols, X, y)

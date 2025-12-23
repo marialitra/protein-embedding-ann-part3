@@ -305,3 +305,160 @@ void free_dataset(Dataset* dataset)
     
     return;
 }
+
+// ------------------
+// Protein .dat reader
+// ------------------
+Dataset* read_data_protein(const char* dat_path)
+{
+    // Assumes binary float32 matrix with dimension 320
+    // Supports two layouts: [N x 320] or [N x (320 + 50)] where last 50 store ASCII ID bytes
+    const int D = 320;
+    const int MAX_ID_LEN = 50;
+    FILE* f = fopen(dat_path, "rb");
+    if (!f)
+    {
+        fprintf(stderr, "Error opening protein .dat file: %s\n", dat_path);
+
+        exit(EXIT_FAILURE);
+    }
+
+    if (fseek(f, 0, SEEK_END) != 0)
+    {
+        fprintf(stderr, "Failed to seek protein .dat file: %s\n", dat_path);
+        fclose(f);
+
+        exit(EXIT_FAILURE);
+    }
+    long fsize = ftell(f);
+    if (fsize < 0)
+    {
+        fprintf(stderr, "Failed to tell size of protein .dat file: %s\n", dat_path);
+        fclose(f);
+
+        exit(EXIT_FAILURE);
+    }
+    rewind(f);
+
+    long bytes_per_row_just = (long)D * (long)sizeof(float);
+    long bytes_per_row_with_ids = (long)(D + MAX_ID_LEN) * (long)sizeof(float);
+    if (bytes_per_row_just <= 0 || bytes_per_row_with_ids <= 0)
+    {
+        fprintf(stderr, "Invalid bytes per row computed for protein reader\n");
+        fclose(f);
+
+        exit(EXIT_FAILURE);
+    }
+
+    int layout = 0; // 0 = 320, 1 = 320+50
+    if (fsize % bytes_per_row_just == 0)
+        layout = 0;
+    else if (fsize % bytes_per_row_with_ids == 0)
+        layout = 1;
+    else
+    {
+        fprintf(stderr, ".dat size (%ld) not multiple of 320*4 (= %ld) or 370*4 (= %ld). Wrong format?\n", fsize, bytes_per_row_just, bytes_per_row_with_ids);
+        fclose(f);
+
+        exit(EXIT_FAILURE);
+    }
+
+    int N = (int)(fsize / (layout == 0 ? bytes_per_row_just : bytes_per_row_with_ids));
+    if (N <= 0)
+    {
+        fprintf(stderr, "Protein .dat appears empty or invalid: %s\n", dat_path);
+        fclose(f);
+
+        exit(EXIT_FAILURE);
+    }
+
+    Dataset* dataset = (Dataset*)malloc(sizeof(Dataset));
+    if (!dataset)
+    {
+        fprintf(stderr, "Memory allocation failed for PROTEIN dataset struct\n");
+        fclose(f);
+
+        exit(EXIT_FAILURE);
+    }
+
+    dataset->size = N;
+    dataset->dimension = D;
+    dataset->data_type = DATA_TYPE_FLOAT;
+    dataset->data = (void**)malloc((size_t)N * sizeof(void*));
+    if (!dataset->data)
+    {
+        fprintf(stderr, "Memory allocation failed for PROTEIN data pointers\n");
+        free(dataset);
+        fclose(f);
+
+        exit(EXIT_FAILURE);
+    }
+
+    // Read entire file row-by-row
+    for (int i = 0; i < N; i++)
+    {
+        float* row = (float*)malloc((size_t)D * sizeof(float));
+        if (!row)
+        {
+            fprintf(stderr, "Memory allocation failed for protein vector %d\n", i);
+            for (int j = 0; j < i; j++)
+                free(dataset->data[j]);
+            free(dataset->data);
+            free(dataset);
+            fclose(f);
+
+            exit(EXIT_FAILURE);
+        }
+        if (layout == 0)
+        {
+            size_t nread = fread(row, sizeof(float), (size_t)D, f);
+            if (nread != (size_t)D)
+            {
+                fprintf(stderr, "Short read at protein vector %d (read %zu floats)\n", i, nread);
+                free(row);
+                for (int j = 0; j < i; j++)
+                    free(dataset->data[j]);
+                free(dataset->data);
+                free(dataset);
+                fclose(f);
+
+                exit(EXIT_FAILURE);
+            }
+        }
+        else
+        {
+            // Read 320 + 50 floats; keep only first 320 elements
+            float* buf = (float*)malloc((size_t)(D + MAX_ID_LEN) * sizeof(float));
+            if (!buf)
+            {
+                fprintf(stderr, "Memory allocation failed for protein temp buffer at row %d\n", i);
+                free(row);
+                for (int j = 0; j < i; j++)
+                    free(dataset->data[j]);
+                free(dataset->data);
+                free(dataset);
+                fclose(f);
+                exit(EXIT_FAILURE);
+            }
+            size_t nread = fread(buf, sizeof(float), (size_t)(D + MAX_ID_LEN), f);
+            if (nread != (size_t)(D + MAX_ID_LEN))
+            {
+                fprintf(stderr, "Short read at protein vector %d (read %zu floats of 370)\n", i, nread);
+                free(buf);
+                free(row);
+                for (int j = 0; j < i; j++)
+                    free(dataset->data[j]);
+                free(dataset->data);
+                free(dataset);
+                fclose(f);
+                exit(EXIT_FAILURE);
+            }
+            memcpy(row, buf, (size_t)D * sizeof(float));
+            free(buf);
+        }
+        dataset->data[i] = row;
+    }
+
+    fclose(f);
+    return dataset;
+}
