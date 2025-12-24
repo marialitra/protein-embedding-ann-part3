@@ -32,7 +32,7 @@ blast_search: blast_db
 .PHONY: blast_db blast_search
 
 # Filter BLAST results (outfmt 6) to top N per query by bit score with E <= max-evalue
-N = 5
+N = 10
 EVALUE = 1e-3
 
 blast_filter: blast_search

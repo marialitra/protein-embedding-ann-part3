@@ -30,7 +30,7 @@ def build_executable():
          print("--- ERROR: 'make' command not found. Is it installed? ---")
          return False
 
-def run_ivfflat(command_list):
+def run_algorithm(command_list):
     """
         Runs the ./search executable with optimized parameters for speed.
     """
@@ -41,6 +41,7 @@ def run_ivfflat(command_list):
     print(f"Detected {num_cores} CPU cores. Setting OMP_NUM_THREADS.")
 
     run_env = os.environ.copy()
+    error_flag = 0
     
     # Setting threads to match core count usually gives best performance
     run_env["OMP_NUM_THREADS"] = num_cores
@@ -56,8 +57,11 @@ def run_ivfflat(command_list):
             check=True
         )
         print("\n--- Run complete. ---")
-
     except subprocess.CalledProcessError as e:
         print(f"--- ERROR: Run failed with return code {e.returncode} ---")
+        error_flag = 1
     except FileNotFoundError:
         print("--- ERROR: './search' executable not found. ---")
+        error_flag = 1
+
+    return error_flag

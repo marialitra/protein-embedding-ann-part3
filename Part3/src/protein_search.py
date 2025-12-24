@@ -6,7 +6,7 @@ from typing import Optional
 
 # Local imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "Algorithms", "src"))
-from runSearchExe import build_executable, run_ivfflat
+from runSearchExe import build_executable, run_algorithm
 
 
 def remap_output_ids(output_txt: str, base_ids_txt: str, query_ids_txt: str):
@@ -319,17 +319,18 @@ def run_protein_search(
 	cmd.extend(["-seed", str(seed)])
 
 	print(f"[protein_search] Running {method.upper()} on protein data ...")
-	run_ivfflat(cmd)
+	error_flag = run_algorithm(cmd)
 	
-	# Remap output IDs
-	# Try .txt file first (e.g., vectors_50k_opt.txt), fallback to _ids.txt
-	base_ids_txt = base_dat.replace(".dat", ".txt")
-	if not os.path.exists(base_ids_txt):
+	if not error_flag:	
 		base_ids_txt = base_dat.replace(".dat", "_ids.txt")
-	query_ids_txt = query_dat.replace(".dat", "_ids.txt")
-	remap_output_ids(output_txt, base_ids_txt, query_ids_txt)
-	
-	print(f"[protein_search] Done. Results at: {output_txt}")
+		
+		if not os.path.exists(base_ids_txt):
+			raise ValueError(f"Unknown file: {base_ids_txt}.")
+		
+		query_ids_txt = query_dat.replace(".dat", "_ids.txt")
+		remap_output_ids(output_txt, base_ids_txt, query_ids_txt)
+		
+		print(f"[protein_search] Done. Results at: {output_txt}")
 
 
 def main():

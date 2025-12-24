@@ -332,11 +332,11 @@ IVFPQIndex* ivfpq_init(Dataset* dataset, int k_clusters, int M, int nbits, bool 
         exit(EXIT_FAILURE);
     }
     
-    index->k = k_clusters;
     index->d = dataset->dimension;
     index->data_type = dataset->data_type;
     index->dataset = dataset;
     index->use_cosine = use_cosine;
+
     // Step 1 & 2: Run Lloyd's to get coarse centroids (reuse IVFFlat logic)
     // printf("Step 1-2: Computing coarse centroids with Lloyd's algorithm...\n");
     IVFFlatIndex* ivf_temp = ivfflat_init(dataset, k_clusters, use_cosine);
@@ -347,6 +347,15 @@ IVFPQIndex* ivfpq_init(Dataset* dataset, int k_clusters, int M, int nbits, bool 
         exit(EXIT_FAILURE);
     }
     
+    if(ivf_temp->k <= 0)
+    {
+        fprintf(stderr, "Error in kclusters\n");
+        exit(1);
+    }
+    
+    index->k = ivf_temp->k;
+    k_clusters = index->k;
+
     // Copy centroids from IVFFlat
     index->centroids = ivf_temp->centroids;
     ivf_temp->centroids = NULL;  // Prevent double-free

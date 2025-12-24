@@ -24,7 +24,6 @@
 #include "hashtable.h"
 #include "lsh.h"
 
-#include "bruteforce_cache.h"
 #include "query.h"
 #include "runAlgorithms.h"
 

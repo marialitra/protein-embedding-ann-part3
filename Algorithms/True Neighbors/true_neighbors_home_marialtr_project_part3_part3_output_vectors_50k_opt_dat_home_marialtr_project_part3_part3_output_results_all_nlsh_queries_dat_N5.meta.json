@@ -1,9 +1,0 @@
-{
-  "dataset_name": "/home/marialtr/project_part3/Part3/output/vectors_50k_opt.dat",
-  "query_name": "/home/marialtr/project_part3/Part3/output/results_all_nlsh.queries.dat",
-  "N": 5,
-  "dataset_size": 50000,
-  "query_size": 12,
-  "dim": 320,
-  "time_seconds": 0.1532071250003355
-}

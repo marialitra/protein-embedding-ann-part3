@@ -65,8 +65,6 @@ def main():
         shape=(N, EMBED_DIM)
     )
 
-    ids_f = open(IDS_FILE, "w")
-
     # -----------------------------
     # Inference
     # -----------------------------
@@ -75,7 +73,6 @@ def main():
             idx = 0
             for i in range(0, N, BATCH_SIZE):
                 batch = data[i:i + BATCH_SIZE]
-                # ids = [x[0] for x in batch]
 
                 _, _, tokens = batch_converter(batch)
                 tokens = tokens.to(DEVICE)
@@ -90,12 +87,10 @@ def main():
                     emb = reps[j][valid].mean(dim=0).cpu().numpy()
 
                     vectors[idx] = emb
-                    # ids_f.write(ids[j] + "\n")
                     id_file_handle.write(batch[j][0] + '\n')
                     idx += 1
 
     vectors.flush()
-    ids_f.close()
 
     print(f"Saved embeddings to: {VECTORS_FILE}")
     print(f"Saved ID mapping to: {IDS_FILE}")
