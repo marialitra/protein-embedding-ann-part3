@@ -84,6 +84,7 @@ def write_top_hits(hits_by_query: Dict[str, List[Hit]], output_path: Path, top_n
 def main() -> None:
     args = parse_args()
     input_path = Path(args.input)
+    
     output_path = Path(args.output)
     if args.top <= 0:
         raise ValueError("--top must be a positive integer")

@@ -1,33 +1,34 @@
 emb:
 	python3 src/protein_embed.py \
 	-i Data/subset_1k.fasta \
-	-o output/vectors.dat \
+	-o output/embeddings/vectors.dat \
 	-model esm2_t6_8M_UR50D
 
 emb_50k:
 	python3 src/protein_embed_danai.py \
 	-i Data/swissprot_50k.fasta \
-	-o output/vectors_50k_opt.dat \
+	-o output/embeddings/vectors_50k_opt.dat \
 	--batch-size 64 \
 	-model esm2_t6_8M_UR50D
 
 search:
 	python3 src/protein_search.py \
-	-d output/vectors.dat -q Data/targets.fasta \
-	-o output/results.txt \
+	-d output/embeddings/vectors.dat -q Data/targets.fasta \
+	-o output/search/results.txt \
 	-method all
 # Possible Inputs:
 # -method <all|lsh|hypercube|ivfflat|ivfpq>
 
 # BLAST: build SwissProt DB and run blastp on targets
 blast_db:
-	@mkdir -p output/blast
+	@mkdir -p output/blast/database
+	@mkdir -p output/blast/search
 	@command -v makeblastdb >/dev/null || (echo "makeblastdb not found. Install NCBI BLAST+ (apt: ncbi-blast+, conda: bioconda/blast) or add it to PATH." && exit 1)
-	makeblastdb -in Data/swissprot_50k.fasta -dbtype prot -out output/blast/swissprot_db
+	makeblastdb -in Data/swissprot_50k.fasta -dbtype prot -out output/blast/database/swissprot_db
 
 blast_search: blast_db
 	@command -v blastp >/dev/null || (echo "blastp not found. Install NCBI BLAST+ (apt: ncbi-blast+, conda: bioconda/blast) or add it to PATH." && exit 1)
-	blastp -db output/blast/swissprot_db -query Data/targets.fasta -outfmt 6 -out output/blast/blast_results.tsv
+	blastp -db output/blast/database/swissprot_db -query Data/targets.fasta -outfmt 6 -out output/blast/search/blast_results.tsv
 
 .PHONY: blast_db blast_search
 
@@ -35,7 +36,7 @@ blast_search: blast_db
 N = 10
 EVALUE = 1e-3
 
-blast_filter: blast_search
-	python3 src/filter_blast.py -i output/blast/blast_results.tsv -o output/blast/blast_results_top${N}.tsv -n ${N} --max-evalue ${EVALUE}
+blast: blast_search
+	python3 src/filter_blast.py -i output/blast/search/blast_results.tsv -o output/blast/topN/blast_results_top${N}.tsv -n ${N} --max-evalue ${EVALUE}
 
 .PHONY: blast_filter

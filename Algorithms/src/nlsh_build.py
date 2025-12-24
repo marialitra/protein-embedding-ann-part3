@@ -1,5 +1,5 @@
 import libraries
-from libraries import Tuple, Dict, List, np, nn, counter, load_sift_vectors, load_idx_images, load_protein_vectors, mnist_train, sift_train, protein_train, parse_neighbor_file, build_csr_from_neighbors, save_builds_output, _slug, build_executable, run_ivfflat, validate_args
+from libraries import Tuple, Dict, List, np, nn, counter, load_sift_vectors, load_idx_images, load_protein_vectors, mnist_train, sift_train, protein_train, parse_neighbor_file, build_csr_from_neighbors, save_builds_output, _slug, build_executable, run_algorithm, validate_args
 
 def main():
     p = libraries.argparse.ArgumentParser(description="Build adjacency matrix (CSR) from neighbor TXT files.")
@@ -74,7 +74,7 @@ def main():
     if not libraries.os.path.exists(knn_graph):
         # Find the knn graph
         if build_executable():
-            run_ivfflat(command_list)
+            run_algorithm(command_list)
         else:
             raise SystemExit("Build failed. Cannot proceed to run IVFFLAT.")
 
