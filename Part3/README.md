@@ -34,3 +34,6 @@ not called ids.txt but verctors_ids.txt, problem?
 5.) problem with M in pq and hypercube share the same in defaults so we shall see
 
 6.) BLAST takes the same N as search will take
+
+
+7.) it was running for nlsh but it is not an  option so i fixed it not to run for it

@@ -5,8 +5,8 @@ import sys
 from typing import Optional
 
 # Local imports
-# sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "Algorithms", "src"))
-from Algorithms.src.runSearchExe import build_executable, run_algorithm
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "Algorithms", "src"))
+from runSearchExe import build_executable, run_algorithm
 
 
 def blast_executable(neighbors: int, output: str):
@@ -27,8 +27,8 @@ def blast_executable(neighbors: int, output: str):
          print("\n\n--- ERROR: 'make' command not found. Is it installed? ---")
          return False
 
-# def compute_recall():
-
+def compute_recall(blast_results: str):
+	print("calculate recall is being written...")
 
 def remap_output_ids(output_txt: str, base_ids_txt: str, query_ids_txt: str):
 	"""Remap numeric indices in output to actual protein IDs."""
@@ -220,7 +220,7 @@ def run_protein_search(
 	3) Run selected ANN algorithm on protein data (cosine), writing results to output_txt
 	
 	Args:
-		method: ANN algorithm to use ('lsh', 'hypercube', 'ivfflat', 'ivfpq', 'nlsh')
+		method: ANN algorithm to use ('lsh', 'hypercube', 'ivfflat', 'ivfpq')
 	"""
 
 	# Handle 'all' method by recursively calling for each algorithm
@@ -236,40 +236,97 @@ def run_protein_search(
 			print(f"{'='*60}")
 			
 			try:
-				qps = run_protein_search(
-					base_dat=base_dat,
-					query_fasta=query_fasta,
-					output_txt=algo_output,
-					method=algo,
-					N=N,
-					R=R,
-					seed=seed,
-					kclusters=kclusters,
-					nprobe=nprobe,
-					k=k,
-					L=L,
-					w=w,
-					kproj=kproj,
-					M=M,
-					probes=probes,
-					nbits=nbits,
-					nlsh_index=nlsh_index,
-					nlsh_T=nlsh_T,
-					nlsh_m=nlsh_m,
-					nlsh_imbalance=nlsh_imbalance,
-					nlsh_kahip_mode=nlsh_kahip_mode,
-					nlsh_layers=nlsh_layers,
-					nlsh_nodes=nlsh_nodes,
-					nlsh_epochs=nlsh_epochs,
-					nlsh_batch_size=nlsh_batch_size,
-					nlsh_lr=nlsh_lr,
-				)
-				all_qps[algo] = qps
+				if algo == "nlsh":
+
+					# 1. Create query .dat using protein_embed
+					embed_py = os.path.join(os.path.dirname(__file__), "protein_embed.py")
+					query_dat = os.path.splitext(algo_output)[0] + ".queries.dat"
+
+					os.makedirs(os.path.dirname(algo_output), exist_ok=True)
+
+					embed_cmd = [
+						sys.executable,
+						embed_py,
+						"-i", query_fasta,
+						"-o", query_dat,
+					]
+
+					print("[protein_search] Generating query embeddings (.dat)...")
+					subprocess.run(embed_cmd, check=True)
+
+					# 2. Build executable if missing (needed for C-based methods and for NLSH graph build)
+					alg_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Algorithms"))
+					alg_part1 = os.path.join(alg_root, "AlgorithmsPart1")
+					exe_path = os.path.join(alg_part1, "search")
+					if not os.path.exists(exe_path):
+						print("[protein_search] Building C executable ...")
+						prev_cwd = os.getcwd()
+						try:
+							os.chdir(alg_root)
+							if not build_executable():
+								raise RuntimeError("Failed to build C executable")
+						except Exception:
+							os.chdir(prev_cwd)
+							raise
+						os.chdir(prev_cwd)
+
+					qps = run_nlsh_pipeline(
+						base_dat=base_dat,
+						query_dat=query_dat,
+						output_txt=algo_output,
+						N=N,
+						R=R,
+						seed=seed,
+						nlsh_index=nlsh_index,
+						nlsh_T=nlsh_T,
+						nlsh_m=nlsh_m,
+						nlsh_imbalance=nlsh_imbalance,
+						nlsh_kahip_mode=nlsh_kahip_mode,
+						nlsh_layers=nlsh_layers,
+						nlsh_nodes=nlsh_nodes,
+						nlsh_epochs=nlsh_epochs,
+						nlsh_batch_size=nlsh_batch_size,
+						nlsh_lr=nlsh_lr,
+					)
+					all_qps[algo] = qps
+
+					print(f"[protein_search] Done. Results at: {algo_output}")
+
+				else:
+					qps = run_protein_search(
+						base_dat=base_dat,
+						query_fasta=query_fasta,
+						output_txt=algo_output,
+						method=algo,
+						N=N,
+						R=R,
+						seed=seed,
+						kclusters=kclusters,
+						nprobe=nprobe,
+						k=k,
+						L=L,
+						w=w,
+						kproj=kproj,
+						M=M,
+						probes=probes,
+						nbits=nbits,
+						nlsh_index=nlsh_index,
+						nlsh_T=nlsh_T,
+						nlsh_m=nlsh_m,
+						nlsh_imbalance=nlsh_imbalance,
+						nlsh_kahip_mode=nlsh_kahip_mode,
+						nlsh_layers=nlsh_layers,
+						nlsh_nodes=nlsh_nodes,
+						nlsh_epochs=nlsh_epochs,
+						nlsh_batch_size=nlsh_batch_size,
+						nlsh_lr=nlsh_lr,
+					)
+					all_qps[algo] = qps
 			except Exception as e:
 				print(f"[protein_search] ERROR running {algo.upper()}: {e}")
 				all_qps[algo] = None
 				continue
-		
+
 		print(f"\n{'='*60}")
 		print(f"[protein_search] All methods complete!")
 		print(f"{'='*60}")
@@ -310,29 +367,29 @@ def run_protein_search(
 
 	# 3. Run selected ANN algorithm (cosine) on protein data
 	method_lower = method.lower()
-	if method_lower == "nlsh":
-		qps = run_nlsh_pipeline(
-			base_dat=base_dat,
-			query_dat=query_dat,
-			output_txt=output_txt,
-			N=N,
-			R=R,
-			seed=seed,
-			nlsh_index=nlsh_index,
-			nlsh_T=nlsh_T,
-			nlsh_m=nlsh_m,
-			nlsh_imbalance=nlsh_imbalance,
-			nlsh_kahip_mode=nlsh_kahip_mode,
-			nlsh_layers=nlsh_layers,
-			nlsh_nodes=nlsh_nodes,
-			nlsh_epochs=nlsh_epochs,
-			nlsh_batch_size=nlsh_batch_size,
-			nlsh_lr=nlsh_lr,
-		)
+	# if method_lower == "nlsh":
+	# 	qps = run_nlsh_pipeline(
+	# 		base_dat=base_dat,
+	# 		query_dat=query_dat,
+	# 		output_txt=output_txt,
+	# 		N=N,
+	# 		R=R,
+	# 		seed=seed,
+	# 		nlsh_index=nlsh_index,
+	# 		nlsh_T=nlsh_T,
+	# 		nlsh_m=nlsh_m,
+	# 		nlsh_imbalance=nlsh_imbalance,
+	# 		nlsh_kahip_mode=nlsh_kahip_mode,
+	# 		nlsh_layers=nlsh_layers,
+	# 		nlsh_nodes=nlsh_nodes,
+	# 		nlsh_epochs=nlsh_epochs,
+	# 		nlsh_batch_size=nlsh_batch_size,
+	# 		nlsh_lr=nlsh_lr,
+	# 	)
 
-		print(f"[protein_search] Done. Results at: {output_txt}")
+	# 	print(f"[protein_search] Done. Results at: {output_txt}")
 
-		return qps
+	# 	return qps
 
 	# We invoke the C binary exactly like Part1 examples, but with -type protein
 	cmd = [
@@ -359,7 +416,7 @@ def run_protein_search(
 		cmd.extend(["-kclusters", str(kclusters), "-nprobe", str(nprobe), "-M", str(M), "-nbits", str(nbits), "-ivfpq"])
 		algo = "ivfpq"
 	else:
-		raise ValueError(f"Unknown method: {method}. Choose from: lsh, hypercube, ivfflat, ivfpq, nlsh")
+		raise ValueError(f"Unknown method: {method}. Choose from: lsh, hypercube, ivfflat, ivfpq")
 
 	cmd.extend(["-seed", str(seed)])
 
@@ -401,7 +458,7 @@ def main():
 	parser.add_argument("-d", required=True, help="Path to base protein vectors .dat (float32 N x 320)")
 	parser.add_argument("-q", required=True, help="Path to FASTA with query sequences")
 	parser.add_argument("-o", "--output", required=True, help="Output neighbors file (text)")
-	parser.add_argument("-method", type=str, default="ivfflat", choices=["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh", "all"],
+	parser.add_argument("-method", type=str, default="ivfflat", choices=["lsh", "hypercube", "ivfflat", "ivfpq", "all"],
 						help="ANN algorithm to use (or 'all' to run all methods)")
 	parser.add_argument("-N", type=int, default=5, help="Number of nearest neighbors")
 	parser.add_argument("-R", type=float, default=0.5, help="Range search radius (for range search mode)")
@@ -487,22 +544,33 @@ def main():
 			print("\nQPS results:")
 
 			for method, qps in all_qps.items():
-				print(f"  {method.upper():10s}: {qps}")
+				if method.lower() == "lsh" or method.lower() == "nlsh" or method.lower() == "ivfpq":
+					print(f"  {method.upper():10s}: {qps}") # LSH / NLSH / IVFPQ
+				elif method.lower() == "ivfflat":
+					method = method[:4].upper() + method[4:]  #IVFFlat
+					print(f"  {method:10s}: {qps}") # everything else
+				else:
+					print(f"  {method.capitalize():10s}: {qps}") # everything else
 	else:
 		print("\nQPS result:")
-		
-		method = method.capitalize()
-		print(f"{method}: {all_qps}")
+
+		if method.lower() == "lsh" or method.lower() == "ivfpq":
+			method = method.upper()  # LSH / IVFPQ
+		elif method.lower() == "ivfflat":
+			method = method[:3].upper() + method[3:]  #IVFFlat
+		else:
+			method = method.capitalize() # everything else
+
+		print(f"  {method:10s}: {all_qps}")
 
 
 	# Running BLAST command
-	output = f"output/blast/topN/blast_results_top{args.N}.tsv"
-	blast_executable(args.N, output)
+	blast_results = f"output/blast/topN/blast_results_top{args.N}.tsv"
+	blast_executable(args.N, blast_results)
 
 	# Compute Recall against BLAST results (topN.tsv) vs the results.txt
 	# If method.lower == "all" then compare all the results_algo.txt vs the BLAST_results.tsv
-	
-	# compute_recall()
+	compute_recall(blast_results)
 
 
 if __name__ == "__main__":
