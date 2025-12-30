@@ -262,21 +262,22 @@ def run_protein_search(
 	R: float = 0.5,
 	seed: int = 42,
 	# IVFFlat / IVFPQ params
-	kclusters: int = 1024,
-	nprobe: int = 10,
+	kclusters: int = 200,
+	nprobe: int = 80,
 	# LSH params
 	k: int = 4,
-	L: int = 5,
+	L: int = 70,
 	w: float = 4.0,
 	# Hypercube params
-	kproj: int = 12,
-	M: int = 5000,
-	probes: int = 10,
+	kproj: int = 14,
+	M: int = 2000,
+	probes: int = 100,
 	# IVFPQ specific
 	nbits: int = 8,
+	ivfpq_M: int = 16,
 	# NLSH specific
 	nlsh_index: Optional[str] = None,
-	nlsh_T: int = 50,
+	nlsh_T: int = 300,
 	nlsh_m: int = 2000,
 	nlsh_imbalance: float = 0.1,
 	nlsh_kahip_mode: int = 0,
@@ -382,6 +383,7 @@ def run_protein_search(
 						M=M,
 						probes=probes,
 						nbits=nbits,
+						ivfpq_M=ivfpq_M,
 						nlsh_index=nlsh_index,
 						nlsh_T=nlsh_T,
 						nlsh_m=nlsh_m,
@@ -404,6 +406,62 @@ def run_protein_search(
 		print(f"{'='*60}")
 
 		return all_qps
+	
+	# Handle 'nlsh' method separately
+	if method == "nlsh":
+		# 1. Create query .dat using protein_embed
+		embed_py = os.path.join(os.path.dirname(__file__), "protein_embed.py")
+		query_dat = os.path.splitext(output_txt)[0] + ".queries.dat"
+
+		os.makedirs(os.path.dirname(output_txt), exist_ok=True)
+
+		embed_cmd = [
+			sys.executable,
+			embed_py,
+			"-i", query_fasta,
+			"-o", query_dat,
+		]
+
+		print("[protein_search] Generating query embeddings (.dat)...")
+		subprocess.run(embed_cmd, check=True)
+
+		# 2. Build executable if missing (needed for NLSH graph build)
+		alg_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Algorithms"))
+		alg_part1 = os.path.join(alg_root, "AlgorithmsPart1")
+		exe_path = os.path.join(alg_part1, "search")
+		if not os.path.exists(exe_path):
+			print("[protein_search] Building C executable ...")
+			prev_cwd = os.getcwd()
+			try:
+				os.chdir(alg_root)
+				if not build_executable():
+					raise RuntimeError("Failed to build C executable")
+			except Exception:
+				os.chdir(prev_cwd)
+				raise
+			os.chdir(prev_cwd)
+
+		qps = run_nlsh(
+			base_dat=base_dat,
+			query_dat=query_dat,
+			output_txt=output_txt,
+			N=N,
+			R=R,
+			seed=seed,
+			nlsh_index=nlsh_index,
+			nlsh_T=nlsh_T,
+			nlsh_m=nlsh_m,
+			nlsh_imbalance=nlsh_imbalance,
+			nlsh_kahip_mode=nlsh_kahip_mode,
+			nlsh_layers=nlsh_layers,
+			nlsh_nodes=nlsh_nodes,
+			nlsh_epochs=nlsh_epochs,
+			nlsh_batch_size=nlsh_batch_size,
+			nlsh_lr=nlsh_lr,
+		)
+		
+		print(f"[protein_search] Done. Results at: {output_txt}")
+		return qps
 	
 	# 1. Create query .dat using protein_embed
 	embed_py = os.path.join(os.path.dirname(__file__), "protein_embed.py")
@@ -460,10 +518,10 @@ def run_protein_search(
 		cmd.extend(["-kclusters", str(kclusters), "-nprobe", str(nprobe), "-ivfflat"])
 		algo = "ivfflat"
 	elif method == "ivfpq":
-		cmd.extend(["-kclusters", str(kclusters), "-nprobe", str(nprobe), "-M", str(M), "-nbits", str(nbits), "-ivfpq"])
+		cmd.extend(["-kclusters", str(kclusters), "-nprobe", str(nprobe), "-M", str(ivfpq_M), "-nbits", str(nbits), "-ivfpq"])
 		algo = "ivfpq"
 	else:
-		raise ValueError(f"Unknown method: {method}. Choose from: lsh, hypercube, ivfflat, ivfpq")
+		raise ValueError(f"Unknown method: {method}. Choose from: lsh, hypercube, ivfflat, ivfpq, nlsh")
 
 	cmd.extend(["-seed", str(seed)])
 
@@ -505,38 +563,39 @@ def main():
 	parser.add_argument("-d", required=True, help="Path to base protein vectors .dat (float32 N x 320)")
 	parser.add_argument("-q", required=True, help="Path to FASTA with query sequences")
 	parser.add_argument("-o", "--output", required=True, help="Output neighbors file (text)")
-	parser.add_argument("-method", type=str, default="ivfflat", choices=["lsh", "hypercube", "ivfflat", "ivfpq", "all"],
+	parser.add_argument("-method", type=str, default="ivfflat", choices=["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh", "all"],
 						help="ANN algorithm to use (or 'all' to run all methods)")
-	parser.add_argument("-N", type=int, default=5, help="Number of nearest neighbors")
+	parser.add_argument("-N", type=int, default=10, help="Number of nearest neighbors")
 	parser.add_argument("-R", type=float, default=0.5, help="Range search radius (for range search mode)")
 	parser.add_argument("--seed", type=int, default=42, help="Random seed")
 	
 	# IVFFlat / IVFPQ params
-	parser.add_argument("--kclusters", type=int, default=50, help="Number of clusters (ivfflat/ivfpq)")
-	parser.add_argument("--nprobe", type=int, default=5, help="Number of probes (ivfflat/ivfpq)")
+	parser.add_argument("--kclusters", type=int, default=200, help="Number of clusters (ivfflat/ivfpq)")
+	parser.add_argument("--nprobe", type=int, default=80, help="Number of probes (ivfflat/ivfpq)")
 	
 	# LSH params
 	parser.add_argument("-k", type=int, default=4, help="Hash functions per table (lsh)")
-	parser.add_argument("-L", type=int, default=5, help="Number of hash tables (lsh)")
+	parser.add_argument("-L", type=int, default=70, help="Number of hash tables (lsh)")
 	parser.add_argument("-w", type=float, default=4.0, help="Window width (lsh/hypercube)")
 	
 	# Hypercube params
-	parser.add_argument("--kproj", type=int, default=12, help="Number of projections (hypercube)")
-	parser.add_argument("-M", type=int, default=16, help="Max candidates to check (hypercube) or subvectors (ivfpq)")
-	parser.add_argument("--probes", type=int, default=2, help="Vertices to examine (hypercube)")
+	parser.add_argument("--kproj", type=int, default=14, help="Number of projections (hypercube)")
+	parser.add_argument("-M", type=int, default=2000, help="Max candidates to check (hypercube)")
+	parser.add_argument("--probes", type=int, default=100, help="Vertices to examine (hypercube)")
 	
 	# IVFPQ specific
 	parser.add_argument("--nbits", type=int, default=8, help="Bits per subspace (ivfpq)")
+	parser.add_argument("--ivfpq-M", type=int, default=16, help="Number of subvectors (ivfpq, must divide dimension)")
 
 	# NLSH specific
 	parser.add_argument("--nlsh-index", type=str, default=None, help="Directory for NLSH index (default: alongside output)")
-	parser.add_argument("--nlsh-T", type=int, default=50, help="Number of bins to probe (nlsh)")
+	parser.add_argument("--nlsh-T", type=int, default=1500, help="Number of bins to probe (nlsh)")
 	parser.add_argument("--nlsh-m", type=int, default=2000, help="Number of parts for KaHIP (nlsh build)")
 	parser.add_argument("--nlsh-imbalance", type=float, default=0.1, help="KaHIP imbalance (nlsh build)")
 	parser.add_argument("--nlsh-kahip-mode", type=int, default=0, help="KaHIP mode (nlsh build)")
-	parser.add_argument("--nlsh-layers", type=int, default=3, help="MLP layers (nlsh build)")
+	parser.add_argument("--nlsh-layers", type=int, default=10, help="MLP layers (nlsh build)")
 	parser.add_argument("--nlsh-nodes", type=int, default=256, help="MLP hidden units (nlsh build)")
-	parser.add_argument("--nlsh-epochs", type=int, default=5, help="Training epochs (nlsh build)")
+	parser.add_argument("--nlsh-epochs", type=int, default=8, help="Training epochs (nlsh build)")
 	parser.add_argument("--nlsh-batch-size", type=int, default=512, help="Batch size (nlsh build)")
 	parser.add_argument("--nlsh-lr", type=float, default=1e-3, help="Learning rate (nlsh build)")
 
@@ -560,6 +619,7 @@ def main():
 		M=args.M,
 		probes=args.probes,
 		nbits=args.nbits,
+		ivfpq_M=args.ivfpq_M,
 		nlsh_index=args.nlsh_index,
 		nlsh_T=args.nlsh_T,
 		nlsh_m=args.nlsh_m,

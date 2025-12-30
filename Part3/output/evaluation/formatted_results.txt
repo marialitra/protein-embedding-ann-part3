@@ -1,0 +1,903 @@
+====================================================================================================
+ASSIGNMENT OUTPUT: Approximate Nearest Neighbor Search for Remote Homologs
+Using ESM-2 Embeddings and Multiple ANN Methods
+====================================================================================================
+
+====================================================================================================
+Query Protein: A0A001
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.08
+Hypercube            |          0.0510 |      19.62 |                      0.04
+IVF-Flat             |          0.6434 |       1.55 |                      0.08
+IVF-PQ               |          0.0816 |      12.26 |                      0.04
+Neural LSH           |          0.0140 |      71.25 |                      0.00
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P9WQJ3          | N/A        | 25.3%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | Q13BH6          | N/A        | 32.7%           | Yes                | BLAST confirmed hit                     
+3      | Q03024          | N/A        | 38.5%           | Yes                | BLAST confirmed hit                     
+4      | Q20Z38          | N/A        | 23.5%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+5      | Q9ZEP3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | O70595          | N/A        | 27.5%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | Q9NP58          | N/A        | 27.6%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+3      | C1A4A9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | B8JA66          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q9RQQ9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P9WQJ3          | N/A        | 25.3%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | Q13BH6          | N/A        | 32.7%           | Yes                | BLAST confirmed hit                     
+3      | Q03024          | N/A        | 38.5%           | Yes                | BLAST confirmed hit                     
+4      | Q20Z38          | N/A        | 23.5%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+5      | Q9ZEP3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q03024          | N/A        | 38.5%           | Yes                | BLAST confirmed hit                     
+2      | Q9ZEP3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | Q8P8W4          | N/A        | 36.1%           | Yes                | BLAST confirmed hit                     
+4      | D3KU66          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A1UKA3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | B8JA66          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q3IYI5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P9WM40          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q7VY01          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q7WLT5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A002
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.10
+Hypercube            |          0.0510 |      19.62 |                      0.04
+IVF-Flat             |          0.6434 |       1.55 |                      0.10
+IVF-PQ               |          0.0816 |      12.26 |                      0.08
+Neural LSH           |          0.0140 |      71.25 |                      0.00
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P9WQJ3          | N/A        | 27.7%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | Q13BH6          | N/A        | 29.2%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+3      | Q03024          | N/A        | 31.3%           | Yes                | BLAST confirmed hit                     
+4      | Q20Z38          | N/A        | 28.3%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+5      | P23886          | N/A        | 27.8%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | O70595          | N/A        | 31.9%           | Yes                | BLAST confirmed hit                     
+2      | Q9NP58          | N/A        | 31.6%           | Yes                | BLAST confirmed hit                     
+3      | C1A4A9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | B8JA66          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q9RQQ9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P9WQJ3          | N/A        | 27.7%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | Q13BH6          | N/A        | 29.2%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+3      | Q03024          | N/A        | 31.3%           | Yes                | BLAST confirmed hit                     
+4      | Q20Z38          | N/A        | 28.3%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+5      | P23886          | N/A        | 27.8%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P9WQJ3          | N/A        | 27.7%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | Q03024          | N/A        | 31.3%           | Yes                | BLAST confirmed hit                     
+3      | Q20Z38          | N/A        | 28.3%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+4      | Q8P8W4          | N/A        | 27.8%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+5      | Q51719          | N/A        | 30.9%           | No                 | Novel discovery by embeddings           
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | B8JA66          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q3IYI5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P9WM40          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q7WLT5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q7VY01          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A009HL96
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.10
+Hypercube            |          0.0510 |      19.62 |                      0.04
+IVF-Flat             |          0.6434 |       1.55 |                      0.10
+IVF-PQ               |          0.0816 |      12.26 |                      0.08
+Neural LSH           |          0.0140 |      71.25 |                      0.02
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q5HI09          | N/A        | 26.1%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | P33112          | N/A        | 30.8%           | Yes                | BLAST confirmed hit                     
+3      | Q99VW2          | N/A        | 26.1%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+4      | Q8CQ37          | N/A        | 27.9%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+5      | Q99RR6          | N/A        | 31.3%           | Yes                | BLAST confirmed hit                     
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q8D5Z6          | N/A        | 34.6%           | Yes                | BLAST confirmed hit                     
+2      | O34311          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | Q56128          | N/A        | 29.0%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+4      | Q13237          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q9Z701          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q5HI09          | N/A        | 26.1%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | P33112          | N/A        | 30.8%           | Yes                | BLAST confirmed hit                     
+3      | Q99VW2          | N/A        | 26.1%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+4      | Q8CQ37          | N/A        | 27.9%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+5      | Q99RR6          | N/A        | 31.3%           | Yes                | BLAST confirmed hit                     
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P33112          | N/A        | 30.8%           | Yes                | BLAST confirmed hit                     
+2      | Q99RR6          | N/A        | 31.3%           | Yes                | BLAST confirmed hit                     
+3      | Q9AE24          | N/A        | 27.6%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+4      | P45189          | N/A        | 34.2%           | Yes                | BLAST confirmed hit                     
+5      | P44845          | N/A        | 22.6%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q56128          | N/A        | 29.0%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | Q62915          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A0A0S1RUN4      | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q2QYY8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q9CMP0          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A009HLV9
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.10
+Hypercube            |          0.0510 |      19.62 |                      0.00
+IVF-Flat             |          0.6434 |       1.55 |                      0.10
+IVF-PQ               |          0.0816 |      12.26 |                      0.10
+Neural LSH           |          0.0140 |      71.25 |                      0.00
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P28787          | N/A        | 62.5%           | Yes                | BLAST confirmed hit                     
+2      | O87455          | N/A        | 39.6%           | Yes                | BLAST confirmed hit                     
+3      | Q06065          | N/A        | 41.3%           | Yes                | BLAST confirmed hit                     
+4      | Q5E3W8          | N/A        | 44.1%           | Yes                | BLAST confirmed hit                     
+5      | P36219          | N/A        | 40.9%           | Yes                | BLAST confirmed hit                     
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q8DEV2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q9KU18          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | Q889C2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P05444          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q9PKA8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P28787          | N/A        | 62.5%           | Yes                | BLAST confirmed hit                     
+2      | O87455          | N/A        | 39.6%           | Yes                | BLAST confirmed hit                     
+3      | Q06065          | N/A        | 41.3%           | Yes                | BLAST confirmed hit                     
+4      | Q5E3W8          | N/A        | 44.1%           | Yes                | BLAST confirmed hit                     
+5      | P36219          | N/A        | 40.9%           | Yes                | BLAST confirmed hit                     
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P28787          | N/A        | 62.5%           | Yes                | BLAST confirmed hit                     
+2      | A8A3I6          | N/A        | 38.2%           | Yes                | BLAST confirmed hit                     
+3      | B7N6T9          | N/A        | 45.5%           | Yes                | BLAST confirmed hit                     
+4      | B4T3B0          | N/A        | 38.4%           | Yes                | BLAST confirmed hit                     
+5      | B4TT16          | N/A        | 38.1%           | Yes                | BLAST confirmed hit                     
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A9ILT1          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | A7MSB2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A1A7A6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q1WT15          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | B5FI41          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A009HN45
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.03
+Hypercube            |          0.0510 |      19.62 |                      0.03
+IVF-Flat             |          0.6434 |       1.55 |                      0.03
+IVF-PQ               |          0.0816 |      12.26 |                      0.12
+Neural LSH           |          0.0140 |      71.25 |                      0.09
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A6QKD8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | A7MSB2          | N/A        | 36.4%           | Yes                | BLAST confirmed hit                     
+3      | Q3K063          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q9ZDW2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q1MQP3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A6QKD8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | A7MSB2          | N/A        | 36.4%           | Yes                | BLAST confirmed hit                     
+3      | Q3K063          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q1MQP3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q7VJC6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A6QKD8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | A7MSB2          | N/A        | 36.4%           | Yes                | BLAST confirmed hit                     
+3      | Q3K063          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q9ZDW2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q1MQP3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A7MSB2          | N/A        | 36.4%           | Yes                | BLAST confirmed hit                     
+2      | B0BT63          | N/A        | 33.6%           | Yes                | BLAST confirmed hit                     
+3      | Q0HMR2          | N/A        | 23.4%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+4      | Q0HR19          | N/A        | 23.7%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+5      | P0C9B2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A7MSB2          | N/A        | 36.4%           | Yes                | BLAST confirmed hit                     
+2      | Q92H92          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | Q821L5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | A1A7A6          | N/A        | 38.1%           | Yes                | BLAST confirmed hit                     
+5      | B5FI41          | N/A        | 38.9%           | Yes                | BLAST confirmed hit                     
+
+
+====================================================================================================
+Query Protein: A0A009HPM0
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.04
+Hypercube            |          0.0510 |      19.62 |                      0.00
+IVF-Flat             |          0.6434 |       1.55 |                      0.04
+IVF-PQ               |          0.0816 |      12.26 |                      0.00
+Neural LSH           |          0.0140 |      71.25 |                      0.00
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q612F5          | N/A        | 40.7%           | Yes                | BLAST confirmed hit                     
+2      | Q5I0C3          | N/A        | 46.8%           | Yes                | BLAST confirmed hit                     
+3      | Q9CMJ8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q12KL2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | P44440          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P07244          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | P77439          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A5F4F5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | B7LYG7          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q31WG4          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q612F5          | N/A        | 40.7%           | Yes                | BLAST confirmed hit                     
+2      | Q5I0C3          | N/A        | 46.8%           | Yes                | BLAST confirmed hit                     
+3      | Q9CMJ8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q12KL2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | P44440          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | B0VRJ4          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | B0TUZ2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A3D8E4          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q9CL07          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | B0BTC2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q31WG4          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | B2U0S0          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | Q8DII3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | A3D085          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A1SY74          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A009HQC9
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.11
+Hypercube            |          0.0510 |      19.62 |                      0.11
+IVF-Flat             |          0.6434 |       1.55 |                      0.11
+IVF-PQ               |          0.0816 |      12.26 |                      0.11
+Neural LSH           |          0.0140 |      71.25 |                      0.11
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q0HR19          | N/A        | 44.5%           | Yes                | BLAST confirmed hit                     
+2      | Q0HMR2          | N/A        | 44.3%           | Yes                | BLAST confirmed hit                     
+3      | A0KGL5          | N/A        | 45.2%           | Yes                | BLAST confirmed hit                     
+4      | A1A7A6          | N/A        | 42.2%           | Yes                | BLAST confirmed hit                     
+5      | A7ZW09          | N/A        | 42.3%           | Yes                | BLAST confirmed hit                     
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q0HR19          | N/A        | 44.5%           | Yes                | BLAST confirmed hit                     
+2      | Q0HMR2          | N/A        | 44.3%           | Yes                | BLAST confirmed hit                     
+3      | A0KGL5          | N/A        | 45.2%           | Yes                | BLAST confirmed hit                     
+4      | A1A7A6          | N/A        | 42.2%           | Yes                | BLAST confirmed hit                     
+5      | A7ZW09          | N/A        | 42.3%           | Yes                | BLAST confirmed hit                     
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q0HR19          | N/A        | 44.5%           | Yes                | BLAST confirmed hit                     
+2      | Q0HMR2          | N/A        | 44.3%           | Yes                | BLAST confirmed hit                     
+3      | A0KGL5          | N/A        | 45.2%           | Yes                | BLAST confirmed hit                     
+4      | A1A7A6          | N/A        | 42.2%           | Yes                | BLAST confirmed hit                     
+5      | A7ZW09          | N/A        | 42.3%           | Yes                | BLAST confirmed hit                     
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q0HMR2          | N/A        | 44.3%           | Yes                | BLAST confirmed hit                     
+2      | A0KGL5          | N/A        | 45.2%           | Yes                | BLAST confirmed hit                     
+3      | B0BT63          | N/A        | 40.4%           | Yes                | BLAST confirmed hit                     
+4      | Q48LP5          | N/A        | 44.1%           | Yes                | BLAST confirmed hit                     
+5      | Q3KGV8          | N/A        | 45.4%           | Yes                | BLAST confirmed hit                     
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A1A7A6          | N/A        | 42.2%           | Yes                | BLAST confirmed hit                     
+2      | A7MSB2          | N/A        | 44.0%           | Yes                | BLAST confirmed hit                     
+3      | Q48LP5          | N/A        | 44.1%           | Yes                | BLAST confirmed hit                     
+4      | B5FI41          | N/A        | 42.3%           | Yes                | BLAST confirmed hit                     
+5      | Q3KGV8          | N/A        | 45.4%           | Yes                | BLAST confirmed hit                     
+
+
+====================================================================================================
+Query Protein: A0A009I3Y5
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.00
+Hypercube            |          0.0510 |      19.62 |                      0.02
+IVF-Flat             |          0.6434 |       1.55 |                      0.00
+IVF-PQ               |          0.0816 |      12.26 |                      0.00
+Neural LSH           |          0.0140 |      71.25 |                      0.02
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A5UG81          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | P44033          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P14181          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q8EKA0          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | B2K7I7          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | B0BBT2          | N/A        | 50.0%           | Yes                | BLAST confirmed hit                     
+2      | P0C993          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | C0MEP5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P0DD36          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q48RI5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A5UG81          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | P44033          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P14181          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q8EKA0          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | B2K7I7          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A5UG81          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q4QLU9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A9KYL6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | A1SW96          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | P45544          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | B0BBT2          | N/A        | 50.0%           | Yes                | BLAST confirmed hit                     
+2      | A1AGU2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A6QEA9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | B7M1A6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A9MPJ5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A009IB02
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.12
+Hypercube            |          0.0510 |      19.62 |                      0.00
+IVF-Flat             |          0.6434 |       1.55 |                      0.12
+IVF-PQ               |          0.0816 |      12.26 |                      0.12
+Neural LSH           |          0.0140 |      71.25 |                      0.00
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P10802          | N/A        | 45.8%           | Yes                | BLAST confirmed hit                     
+2      | P11961          | N/A        | 33.3%           | Yes                | BLAST confirmed hit                     
+3      | Q9SQI8          | N/A        | 31.9%           | Yes                | BLAST confirmed hit                     
+4      | P49786          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | P22439          | N/A        | 26.3%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q6MMS6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q7WHG2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | B4RMZ3          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | A9ITX6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q30WJ0          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P10802          | N/A        | 45.8%           | Yes                | BLAST confirmed hit                     
+2      | P11961          | N/A        | 33.3%           | Yes                | BLAST confirmed hit                     
+3      | Q9SQI8          | N/A        | 31.9%           | Yes                | BLAST confirmed hit                     
+4      | P49786          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | P22439          | N/A        | 26.3%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | P10802          | N/A        | 45.8%           | Yes                | BLAST confirmed hit                     
+2      | Q9SQI8          | N/A        | 31.9%           | Yes                | BLAST confirmed hit                     
+3      | P49786          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P29337          | N/A        | 34.5%           | Yes                | BLAST confirmed hit                     
+5      | P02904          | N/A        | 36.7%           | Yes                | BLAST confirmed hit                     
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q7WHG2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q140U6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | C0MDY5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | B2RHM9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A4YJE9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A009PCK4
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.00
+Hypercube            |          0.0510 |      19.62 |                      0.02
+IVF-Flat             |          0.6434 |       1.55 |                      0.00
+IVF-PQ               |          0.0816 |      12.26 |                      0.00
+Neural LSH           |          0.0140 |      71.25 |                      0.02
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A5UG81          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | P44033          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P14181          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q8EKA0          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | B2K7I7          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | B0BBT2          | N/A        | 33.0%           | Yes                | BLAST confirmed hit                     
+2      | P0C993          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | C0MEP5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P0DD36          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q48RI5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A5UG81          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | P44033          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P14181          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q8EKA0          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | B2K7I7          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | A5UG81          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q4QLU9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A9KYL6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | A1SW96          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | P45544          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | B0BBT2          | N/A        | 33.0%           | Yes                | BLAST confirmed hit                     
+2      | A1AGU2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A6QEA9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | B7M1A6          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A9MPJ5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A010Q3W2
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.00
+Hypercube            |          0.0510 |      19.62 |                      0.05
+IVF-Flat             |          0.6434 |       1.55 |                      0.00
+IVF-PQ               |          0.0816 |      12.26 |                      0.00
+Neural LSH           |          0.0140 |      71.25 |                      0.05
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | D1ZEM6          | N/A        | 37.5%           | No                 | Novel discovery by embeddings           
+2      | P0CS56          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | Q2UUT4          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P0CS29          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A2QI22          | N/A        | 25.4%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | O35828          | N/A        | 26.3%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q652L2          | N/A        | 34.9%           | No                 | Novel discovery by embeddings           
+3      | Q8VYZ5          | N/A        | 22.7%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+4      | Q8CFJ9          | N/A        | 23.9%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q9VKK2          | N/A        | 22.7%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | D1ZEM6          | N/A        | 37.5%           | No                 | Novel discovery by embeddings           
+2      | P0CS56          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | Q2UUT4          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P0CS29          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A2QI22          | N/A        | 25.4%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q2UUT4          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | A2QI22          | N/A        | 25.4%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | A1CXL0          | N/A        | 33.3%           | No                 | Novel discovery by embeddings           
+4      | O35828          | N/A        | 26.3%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q8TEB1          | N/A        | 22.1%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q8VYZ5          | N/A        | 22.7%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+2      | P91341          | N/A        | 23.3%           | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | Q09499          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q9EQY0          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q5BCU8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+====================================================================================================
+Query Protein: A0A010Q8R4
+N = 50 (μέγεθος λίστας Top-N για την αξιολόγηση Recall@N)
+====================================================================================================
+
+[1] Συνοπτική σύγκριση μεθόδων
+----------------------------------------------------------------------------------------------------
+Method               | Time/query (s)  | QPS        | Recall@N vs BLAST Top-N  
+----------------------------------------------------------------------------------------------------
+Euclidean LSH        |          1.4265 |       0.70 |                      0.00
+Hypercube            |          0.0510 |      19.62 |                      0.03
+IVF-Flat             |          0.6434 |       1.55 |                      0.00
+IVF-PQ               |          0.0816 |      12.26 |                      0.00
+Neural LSH           |          0.0140 |      71.25 |                      0.00
+BLAST (Reference)    |           1.500 |       0.67 |                      1.00 (ορίζει το Top-N)
+----------------------------------------------------------------------------------------------------
+
+[2] Top-N γείτονες ανά μέθοδο (N = 10 για εκτύπωση)
+====================================================================================================
+
+Method: Euclidean LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q9P4R5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q652L2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P0CS56          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P0CS29          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A1DIN7          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: HYPERCUBE
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q652L2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q6CXX3          | N/A        | 26.1%           | Yes                | Twilight zone homolog (low seq identity, high BLAST rank)
+3      | A0A348AXX6      | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q9VKK2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | Q4PAR1          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-Flat
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q9P4R5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q652L2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P0CS56          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P0CS29          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A1DIN7          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: IVF-PQ
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q9P4R5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q652L2          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P0CS56          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | P0CS29          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | A2RAG5          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+
+
+Method: Neural LSH
+------------------------------------------------------------------------------------------------------------------------
+Rank   | Neighbor ID     | Distance   | BLAST Identity  | In BLAST Top-N?    | Bio comment                             
+------------------------------------------------------------------------------------------------------------------------
+1      | Q09499          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+2      | Q5BCU8          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+3      | P0CP70          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+4      | Q9SMX9          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)
+5      | O14302          | N/A        | N/A             | No                 | Potential remote homolog (not in BLAST top-N, check domains)

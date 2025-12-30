@@ -1,0 +1,84 @@
+Query: A0A009HN45
+Neighbor-1: A6QKD8 | Distance: 0.010196
+Neighbor-2: A7MSB2 | Distance: 0.010337
+Neighbor-3: Q3K063 | Distance: 0.011489
+Neighbor-4: Q9ZDW2 | Distance: 0.011677
+Neighbor-5: Q1MQP3 | Distance: 0.011794
+
+Query: A0A009PCK4
+Neighbor-1: A5UG81 | Distance: 0.058200
+Neighbor-2: P44033 | Distance: 0.063585
+Neighbor-3: P14181 | Distance: 0.065038
+Neighbor-4: Q8EKA0 | Distance: 0.075577
+Neighbor-5: B2K7I7 | Distance: 0.078625
+
+Query: A0A009HPM0
+Neighbor-1: Q612F5 | Distance: 0.037640
+Neighbor-2: Q5I0C3 | Distance: 0.039589
+Neighbor-3: Q9CMJ8 | Distance: 0.042872
+Neighbor-4: Q12KL2 | Distance: 0.043030
+Neighbor-5: P44440 | Distance: 0.045516
+
+Query: A0A010Q8R4
+Neighbor-1: Q9P4R5 | Distance: 0.031055
+Neighbor-2: Q652L2 | Distance: 0.031996
+Neighbor-3: P0CS56 | Distance: 0.032506
+Neighbor-4: P0CS29 | Distance: 0.033684
+Neighbor-5: A1DIN7 | Distance: 0.036243
+
+Query: A0A009IB02
+Neighbor-1: P10802 | Distance: 0.037984
+Neighbor-2: P11961 | Distance: 0.105323
+Neighbor-3: Q9SQI8 | Distance: 0.105639
+Neighbor-4: P49786 | Distance: 0.106150
+Neighbor-5: P22439 | Distance: 0.122976
+
+Query: A0A009HQC9
+Neighbor-1: Q0HR19 | Distance: 0.005721
+Neighbor-2: Q0HMR2 | Distance: 0.005776
+Neighbor-3: A0KGL5 | Distance: 0.005951
+Neighbor-4: A1A7A6 | Distance: 0.007312
+Neighbor-5: A7ZW09 | Distance: 0.007448
+
+Query: A0A009HL96
+Neighbor-1: Q5HI09 | Distance: 0.016167
+Neighbor-2: P33112 | Distance: 0.016349
+Neighbor-3: Q99VW2 | Distance: 0.017229
+Neighbor-4: Q8CQ37 | Distance: 0.017968
+Neighbor-5: Q99RR6 | Distance: 0.022359
+
+Query: A0A010Q3W2
+Neighbor-1: D1ZEM6 | Distance: 0.029876
+Neighbor-2: P0CS56 | Distance: 0.032071
+Neighbor-3: Q2UUT4 | Distance: 0.032294
+Neighbor-4: P0CS29 | Distance: 0.034529
+Neighbor-5: A2QI22 | Distance: 0.035953
+
+Query: A0A009I3Y5
+Neighbor-1: A5UG81 | Distance: 0.060316
+Neighbor-2: P44033 | Distance: 0.065060
+Neighbor-3: P14181 | Distance: 0.066500
+Neighbor-4: Q8EKA0 | Distance: 0.075201
+Neighbor-5: B2K7I7 | Distance: 0.077708
+
+Query: A0A002
+Neighbor-1: P9WQJ3 | Distance: 0.048201
+Neighbor-2: Q13BH6 | Distance: 0.055734
+Neighbor-3: Q03024 | Distance: 0.060109
+Neighbor-4: Q20Z38 | Distance: 0.063778
+Neighbor-5: P23886 | Distance: 0.083395
+
+Query: A0A001
+Neighbor-1: P9WQJ3 | Distance: 0.044760
+Neighbor-2: Q13BH6 | Distance: 0.050997
+Neighbor-3: Q03024 | Distance: 0.054366
+Neighbor-4: Q20Z38 | Distance: 0.058992
+Neighbor-5: Q9ZEP3 | Distance: 0.076519
+
+Query: A0A009HLV9
+Neighbor-1: P28787 | Distance: 0.009924
+Neighbor-2: O87455 | Distance: 0.023394
+Neighbor-3: Q06065 | Distance: 0.024477
+Neighbor-4: Q5E3W8 | Distance: 0.024555
+Neighbor-5: P36219 | Distance: 0.024793
+

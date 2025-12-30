@@ -1,0 +1,146 @@
+Neural LSH
+
+Query: A0A009HN45
+Nearest neighbor-1: A6QKD8
+Nearest neighbor-2: A7MSB2
+Nearest neighbor-3: Q3K063
+Nearest neighbor-4: Q9ZDW2
+Nearest neighbor-5: Q1MQP3
+Nearest neighbor-6: Q7VJC6
+Nearest neighbor-7: B0BT63
+Nearest neighbor-8: Q92H92
+Nearest neighbor-9: P52126
+Nearest neighbor-10: Q0HMR2
+
+Query: A0A009HQC9
+Nearest neighbor-1: Q0HR19
+Nearest neighbor-2: Q0HMR2
+Nearest neighbor-3: A0KGL5
+Nearest neighbor-4: A1A7A6
+Nearest neighbor-5: A7ZW09
+Nearest neighbor-6: B0BT63
+Nearest neighbor-7: A7MSB2
+Nearest neighbor-8: Q48LP5
+Nearest neighbor-9: B5FI41
+Nearest neighbor-10: Q5PDF0
+
+Query: A0A010Q8R4
+Nearest neighbor-1: Q9P4R5
+Nearest neighbor-2: Q652L2
+Nearest neighbor-3: P0CS29
+Nearest neighbor-4: A1DIN7
+Nearest neighbor-5: A2QGF0
+Nearest neighbor-6: Q6CXX3
+Nearest neighbor-7: A0A348AXX6
+Nearest neighbor-8: A1CBB8
+Nearest neighbor-9: A2RAG5
+Nearest neighbor-10: B8MJJ8
+
+Query: A0A009HPM0
+Nearest neighbor-1: Q612F5
+Nearest neighbor-2: Q5I0C3
+Nearest neighbor-3: P44440
+Nearest neighbor-4: Q9CP74
+Nearest neighbor-5: Q8DXM9
+Nearest neighbor-6: A5F3L5
+Nearest neighbor-7: P57029
+Nearest neighbor-8: P07244
+Nearest neighbor-9: A3DA85
+Nearest neighbor-10: A8GKD1
+
+Query: A0A009IB02
+Nearest neighbor-1: P10802
+Nearest neighbor-2: P49786
+Nearest neighbor-3: P43874
+Nearest neighbor-4: P29337
+Nearest neighbor-5: P02904
+Nearest neighbor-6: Q06881
+Nearest neighbor-7: P0ABE1
+Nearest neighbor-8: Q68XI8
+Nearest neighbor-9: Q6MMS6
+Nearest neighbor-10: B5XWP9
+
+Query: A0A001
+Nearest neighbor-1: P9WQJ3
+Nearest neighbor-2: Q13BH6
+Nearest neighbor-3: Q9ZEP3
+Nearest neighbor-4: A0K739
+Nearest neighbor-5: Q51719
+Nearest neighbor-6: Q8P8W4
+Nearest neighbor-7: Q3JSR6
+Nearest neighbor-8: P23886
+Nearest neighbor-9: Q82MV1
+Nearest neighbor-10: A6W3V7
+
+Query: A0A002
+Nearest neighbor-1: P9WQJ3
+Nearest neighbor-2: Q13BH6
+Nearest neighbor-3: P23886
+Nearest neighbor-4: Q8P8W4
+Nearest neighbor-5: Q51719
+Nearest neighbor-6: Q82MV1
+Nearest neighbor-7: A0K739
+Nearest neighbor-8: A6W3V7
+Nearest neighbor-9: Q3JSR6
+Nearest neighbor-10: Q60AI1
+
+Query: A0A010Q3W2
+Nearest neighbor-1: P0CS29
+Nearest neighbor-2: A2QI22
+Nearest neighbor-3: A1CXL0
+Nearest neighbor-4: A2RAG5
+Nearest neighbor-5: O35828
+Nearest neighbor-6: Q9SU78
+Nearest neighbor-7: A1CBB8
+Nearest neighbor-8: Q9NRL3
+Nearest neighbor-9: Q652L2
+Nearest neighbor-10: Q756D0
+
+Query: A0A009HLV9
+Nearest neighbor-1: A5FRK7
+Nearest neighbor-2: Q03YJ6
+Nearest neighbor-3: P71229
+Nearest neighbor-4: B0JY77
+Nearest neighbor-5: Q15RN6
+Nearest neighbor-6: Q8DEV2
+Nearest neighbor-7: Q83BE0
+Nearest neighbor-8: Q9KU18
+Nearest neighbor-9: P0DF50
+Nearest neighbor-10: A4STH5
+
+Query: A0A009HL96
+Nearest neighbor-1: Q5HI09
+Nearest neighbor-2: P33112
+Nearest neighbor-3: Q99VW2
+Nearest neighbor-4: Q8CQ37
+Nearest neighbor-5: Q99RR6
+Nearest neighbor-6: P28257
+Nearest neighbor-7: Q9AE24
+Nearest neighbor-8: P0CAW8
+Nearest neighbor-9: A6WZ81
+Nearest neighbor-10: A0A0H2UQ68
+
+Query: A0A009I3Y5
+Nearest neighbor-1: A5UG81
+Nearest neighbor-2: P44033
+Nearest neighbor-3: Q8EKA0
+Nearest neighbor-4: B2K7I7
+Nearest neighbor-5: Q12SQ2
+Nearest neighbor-6: B4F0D4
+Nearest neighbor-7: A3DA85
+Nearest neighbor-8: Q8EJX6
+Nearest neighbor-9: A1RPL0
+Nearest neighbor-10: P47448
+
+Query: A0A009PCK4
+Nearest neighbor-1: A5UG81
+Nearest neighbor-2: P44033
+Nearest neighbor-3: Q8EKA0
+Nearest neighbor-4: B2K7I7
+Nearest neighbor-5: Q12SQ2
+Nearest neighbor-6: B4F0D4
+Nearest neighbor-7: A3DA85
+Nearest neighbor-8: Q8EJX6
+Nearest neighbor-9: A1RPL0
+Nearest neighbor-10: P47448
+
