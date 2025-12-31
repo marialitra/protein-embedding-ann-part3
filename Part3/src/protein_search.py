@@ -2,9 +2,9 @@ import os
 import argparse
 import subprocess
 import sys
-from typing import Optional
+from typing import Optional, Dict, List, Tuple
 from collections import defaultdict
-
+import re
 
 # Local imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "Algorithms", "src"))
@@ -58,26 +58,35 @@ def parse_blast_tsv(blast_tsv_path, topN):
     # Convert lists to sets
     return {q: set(v) for q, v in gt.items()}
 
+def _extract_neighbor_id(line: str) -> Optional[str]:
+	"""Return the neighbor token from a result line, ignoring distance."""
+	# Match both formats
+	match = re.search(r"Nearest neighbor-\d+\s*:\s*([^,\s]+)", line)
+	if match:
+		return match.group(1).strip()
+	return None
+
+
 def parse_ann_txt(ann_txt_path, topN):
-    """
-    Returns:
-        dict: {query_id: list(topN neighbor_ids)}
-    """
-    results = defaultdict(list)
-    current_query = None
+	"""
+	Returns:
+		dict: {query_id: list(topN neighbor_ids)}
+	"""
+	results = defaultdict(list)
+	current_query = None
 
-    with open(ann_txt_path, "r") as f:
-        for line in f:
-            line = line.strip()
+	with open(ann_txt_path, "r") as f:
+		for raw_line in f:
+			line = raw_line.strip()
 
-            if line.startswith("Query:"):
-                current_query = line.split("Query:")[1].strip()
-            elif line.startswith("Nearest neighbor") and current_query:
-                neighbor_id = line.split(":")[1].strip()
-                if len(results[current_query]) < topN:
-                    results[current_query].append(neighbor_id)
+			if line.startswith("Query:"):
+				current_query = line.split("Query:")[1].strip()
+			elif line.startswith("Nearest neighbor") and current_query:
+				neighbor_id = _extract_neighbor_id(line)
+				if neighbor_id and len(results[current_query]) < topN:
+					results[current_query].append(neighbor_id)
 
-    return results
+	return results
 
 def compute_recall(blast_tsv, ann_txt, topN):
     blast_gt = parse_blast_tsv(blast_tsv, topN)
@@ -102,58 +111,216 @@ def compute_recall(blast_tsv, ann_txt, topN):
     return mean_recall, per_query
 
 
+def parse_blast_results_with_identity(blast_tsv_path: str) -> Dict[str, List[Tuple[str, float]]]:
+	"""
+	Parse BLAST results.tsv and return {query_id: [(target_id, identity%), ...]}
+	Identity is extracted from column 2 (0-indexed).
+	"""
+	blast_data = defaultdict(list)
+
+	with open(blast_tsv_path, "r") as f:
+		for line in f:
+			if not line.strip():
+				continue
+			cols = line.strip().split("\t")
+			if len(cols) < 3:
+				continue
+
+			query_id = cols[0]
+			target_field = cols[1]
+			identity_str = cols[2]
+
+			# Extract protein ID from sp|ID|... format
+			if target_field.startswith("sp|"):
+				target_id = target_field.split("|")[1]
+			else:
+				target_id = target_field
+
+			try:
+				identity = float(identity_str)
+			except ValueError:
+				continue
+
+			blast_data[query_id].append((target_id, identity))
+
+	return blast_data
+
+
+def parse_neighbor_results(results_txt: str, topN: int) -> Dict[str, List[Tuple[str, float]]]:
+	"""Parse results file and return {query_id: [(neighbor_id, distance), ...]}"""
+	results = defaultdict(list)
+	current_query = None
+	# Match both formats: "Nearest neighbor-N: ID, 0.123" and "Nearest neighbor-N: ID, Distance: 0.123"
+	neighbor_re = re.compile(r"Nearest neighbor-\d+\s*:\s*([^,\s]+)\s*,\s*(?:Distance:\s*)?([\d.]+)")
+
+	with open(results_txt, "r") as f:
+		for line in f:
+			line = line.strip()
+			if line.startswith("Query:"):
+				current_query = line.split("Query:")[1].strip()
+			elif line.startswith("Nearest neighbor") and current_query:
+				match = neighbor_re.search(line)
+				if match and len(results[current_query]) < topN:
+					neighbor_id = match.group(1).strip()
+					distance = float(match.group(2))
+					results[current_query].append((neighbor_id, distance))
+
+	return results
+
+
+
+def generate_per_query_report(
+	output_report: str,
+	query_fasta: str,
+	topN: int,
+	method_name: str,
+	method_key: str,
+	qps: Optional[float],
+	method_results: Dict[str, List[Tuple[str, float]]],
+	blast_results_topn: Dict[str, set],
+	blast_results_identity: Dict[str, List[Tuple[str, float]]],
+):
+	"""
+	Generate comprehensive per-query report with individual recall.
+
+	Args:
+		output_report: Path to write report
+		query_fasta: Path to query FASTA file
+		topN: Number of neighbors in Top-N
+		method_name: Display name (e.g., "Euclidean LSH")
+		method_key: Internal key (e.g., "lsh")
+		qps: Queries per second
+		method_results: {query_id: [(neighbor_id, distance), ...]}
+		blast_results_topn: {query_id: set(neighbor_ids)}
+		blast_results_identity: {query_id: [(neighbor_id, identity%), ...]}
+	"""
+	# Read all query IDs from FASTA
+	query_ids = []
+	with open(query_fasta, "r") as f:
+		for line in f:
+			if line.startswith(">"):
+				query_id = line.strip()[1:].split()[0]
+				query_ids.append(query_id)
+
+	with open(output_report, "w") as f:
+		# Global header
+		f.write("=" * 110 + "\n")
+		f.write(f"Method: {method_name}\n")
+		f.write(f"N = {topN} (Top-N size for Recall@N evaluation)\n")
+		if qps is not None and qps > 0:
+			f.write(f"QPS: {qps:.2f} | Time/query: {1.0/qps:.6f}s\n")
+		f.write("=" * 110 + "\n\n")
+
+		# Iterate through each query
+		for query_id in query_ids:
+			f.write("\n" + "-" * 110 + "\n")
+			f.write(f"Query: {query_id}\n")
+			f.write("-" * 110 + "\n")
+
+			# Get neighbors for this query from results
+			neighbors = method_results.get(query_id, [])
+			blast_top_n = blast_results_topn.get(query_id, set())
+			blast_identities = {tid: ident for tid, ident in blast_results_identity.get(query_id, [])}
+
+			# Compute recall for this query
+			if blast_top_n:
+				neighbors_in_blast = sum(1 for nid, _ in neighbors[:topN] if nid in blast_top_n)
+				recall = neighbors_in_blast / len(blast_top_n)
+			else:
+				recall = 0.0
+
+			f.write(f"Recall@{topN} vs BLAST Top-N: {recall:.4f}\n\n")
+
+			# Table header
+			f.write(
+				f"{'Rank':<6} | {'Neighbor ID':<15} | {'Distance':<12} | {'BLAST ID%':<12} | {'BLAST Top-N':<12} | {'Bio Comment':<30}\n"
+			)
+			f.write("-" * 110 + "\n")
+
+			# Table rows
+			for rank, (neighbor_id, distance) in enumerate(neighbors[:topN], 1):
+				in_blast = neighbor_id in blast_top_n
+				blast_in_str = "Yes" if in_blast else "No"
+				blast_id = blast_identities.get(neighbor_id, 0.0)
+
+				# Bio comment logic
+				if in_blast and blast_id > 30:
+					bio_comment = "Homolog"
+				elif in_blast and 20 < blast_id <= 30:
+					bio_comment = "Remote homolog"
+				elif not in_blast:
+					bio_comment = "Possible false positive"
+				else:
+					bio_comment = ""
+
+				f.write(
+					f"{rank:<6} | {neighbor_id:<15} | {distance:>11.3f} | {blast_id:>11.2f} | {blast_in_str:<12} | {bio_comment:<30}\n"
+				)
+
+		f.write("\n" + "=" * 110 + "\n")
+		f.write(
+			"Note: Distance values from embedding space (cosine-based). "
+			"BLAST ID% from BLAST results. Bio Comment inferred from BLAST identity thresholds.\n"
+		)
+		f.write("=" * 110 + "\n")
+
+	print(f"[protein_search] Per-query report written to {output_report}")
+
+
+
+
 def remap_output_ids(output_txt: str, base_ids_txt: str, query_ids_txt: str):
-	"""Remap numeric indices in output to actual protein IDs."""
+	"""Remap numeric indices in output to actual protein IDs (distance-safe)."""
 	if not os.path.exists(output_txt):
 		return
 	
 	# Load ID mappings
 	base_ids = []
 	if os.path.exists(base_ids_txt):
-		with open(base_ids_txt, 'r') as f:
+		with open(base_ids_txt, "r") as f:
 			base_ids = [line.strip() for line in f if line.strip()]
 	
 	query_ids = []
 	if os.path.exists(query_ids_txt):
-		with open(query_ids_txt, 'r') as f:
+		with open(query_ids_txt, "r") as f:
 			query_ids = [line.strip() for line in f if line.strip()]
 	
 	if not base_ids and not query_ids:
 		return
 	
-	# Read and remap output
-	with open(output_txt, 'r') as f:
+	with open(output_txt, "r") as f:
 		lines = f.readlines()
 	
 	remapped_lines = []
-	for line in lines:
+	neighbor_colon_re = re.compile(r"^(Nearest neighbor-\d+)\s*:\s*(\d+)(.*)$")
+
+	for raw_line in lines:
+		line = raw_line.rstrip("\n")
+
 		if line.startswith("Query:"):
-			# Extract query index and remap to ID
 			parts = line.split()
 			if len(parts) >= 2:
 				try:
 					idx = int(parts[1])
 					if 0 <= idx < len(query_ids):
-						line = f"Query: {query_ids[idx]}\n"
+						line = f"Query: {query_ids[idx]}"
 				except (ValueError, IndexError):
 					pass
 		elif line.startswith("Nearest neighbor"):
-			# Extract neighbor index and remap to ID
-			parts = line.split()
-			if len(parts) >= 2:
+			match = neighbor_colon_re.match(line)
+			if match:
+				prefix, idx_str, rest = match.groups()
 				try:
-					idx = int(parts[-1])
+					idx = int(idx_str)
 					if 0 <= idx < len(base_ids):
-						prefix = " ".join(parts[:-1])
-						line = f"{prefix} {base_ids[idx]}\n"
-				except (ValueError, IndexError):
+						line = f"{prefix}: {base_ids[idx]}{rest}"
+				except ValueError:
 					pass
-		remapped_lines.append(line)
+		remapped_lines.append(line + "\n")
 	
-	# Write back
-	with open(output_txt, 'w') as f:
+	with open(output_txt, "w") as f:
 		f.writelines(remapped_lines)
-	
+
 	print(f"[protein_search] Remapped indices to protein IDs in {output_txt}")
 
 def run_nlsh(
@@ -675,27 +842,87 @@ def main():
 	blast_results = f"output/blast/topN/blast_results_top{args.N}.tsv"
 	blast_executable(args.N, blast_results)
 
+	# Parse BLAST results with identity
+	blast_results_path = "output/blast/search/blast_results.tsv"
+	blast_identity = parse_blast_results_with_identity(blast_results_path) if os.path.exists(blast_results_path) else {}
+
 	# Compute Recall against BLAST results (topN.tsv) vs the results.txt
 	# If method.lower == "all" then compare all the results_algo.txt vs the BLAST_results.tsv
 	if method_lower == "all":
 		all_methods = ["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"]
+		all_methods_display = ["Euclidean LSH", "Hypercube", "IVF-Flat", "IVF-PQ", "Neural LSH"]
 		base_output = os.path.splitext(args.output)[0]
 
 		print("\nRecall results:")
-		for algo in all_methods:
+		method_recall = {}
+		method_results = {}
+
+		for algo, algo_display in zip(all_methods, all_methods_display):
 			ann_txt = f"{base_output}_{algo}.txt"
 			mean_recall, _ = compute_recall(blast_tsv=blast_results, ann_txt=ann_txt, topN=args.N)
+			method_recall[algo] = mean_recall
+
+			# Parse neighbor results for formatted report
+			method_results[algo] = parse_neighbor_results(ann_txt, args.N)
 
 			if algo == "lsh" or algo == "nlsh" or algo == "ivfpq":
-				print(f"  {algo.upper():10s}: {mean_recall:.4f}") # LSH / NLSH / IVFPQ
+				print(f"  {algo.upper():10s}: {mean_recall:.4f}")  # LSH / NLSH / IVFPQ
 			elif algo == "ivfflat":
-				algo = algo[:4].upper() + algo[4:]  #IVFFlat
-				print(f"  {algo:10s}: {mean_recall:.4f}") # everything else
+				algo_display_print = algo[:4].upper() + algo[4:]  # IVFFlat
+				print(f"  {algo_display_print:10s}: {mean_recall:.4f}")
 			else:
-				print(f"  {algo.capitalize():10s}: {mean_recall:.4f}") # everything else
+				print(f"  {algo.capitalize():10s}: {mean_recall:.4f}")
+
+		# Parse BLAST top-N
+		blast_gt = parse_blast_tsv(blast_results, args.N)
+
+		# Generate per-query reports for each method
+		for algo, algo_display in zip(all_methods, all_methods_display):
+			report_path = f"{base_output}_{algo}_REPORT.txt"
+			generate_per_query_report(
+				output_report=report_path,
+				query_fasta=args.q,
+				topN=args.N,
+				method_name=algo_display,
+				method_key=algo,
+				qps=all_qps.get(algo),
+				method_results=method_results.get(algo, {}),
+				blast_results_topn=blast_gt,
+				blast_results_identity=blast_identity,
+			)
 	else:
 		mean_recall, _ = compute_recall(blast_tsv=blast_results, ann_txt=args.output, topN=args.N)
-		print(f"\nRecall@{args.N}: {mean_recall:.4f}")
+		print(f"\nRecall@{args.N} (average): {mean_recall:.4f}")
+
+		# Parse neighbor results
+		method_results = parse_neighbor_results(args.output, args.N)
+
+		# Parse BLAST top-N
+		blast_gt = parse_blast_tsv(blast_results, args.N)
+
+		# Determine method display name
+		method_display_map = {
+			"lsh": "Euclidean LSH",
+			"hypercube": "Hypercube",
+			"ivfflat": "IVF-Flat",
+			"ivfpq": "IVF-PQ",
+			"nlsh": "Neural LSH",
+		}
+		method_display = method_display_map.get(method_lower, method_lower.capitalize())
+
+		# Generate per-query report
+		report_path = os.path.splitext(args.output)[0] + "_REPORT.txt"
+		generate_per_query_report(
+			output_report=report_path,
+			query_fasta=args.q,
+			topN=args.N,
+			method_name=method_display,
+			method_key=method_lower,
+			qps=all_qps,
+			method_results=method_results,
+			blast_results_topn=blast_gt,
+			blast_results_identity=blast_identity,
+		)
 
 
 if __name__ == "__main__":

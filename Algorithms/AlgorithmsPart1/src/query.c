@@ -79,7 +79,7 @@ void perform_query(const struct SearchParams* params, const struct Dataset* data
         offset += snprintf(buffer + offset, sizeof(buffer) - offset, "\nQuery: %d\n", q_idx);
 
         for (int i = 0; i < params->N && i < approx_count; i++)
-            offset += snprintf(buffer + offset, sizeof(buffer) - offset, "Nearest neighbor-%d: %d\n", i + 1, approx_neighbors[i]);
+            offset += snprintf(buffer + offset, sizeof(buffer) - offset, "Nearest neighbor-%d: %d, Distance: %.3f\n", i + 1, approx_neighbors[i], approx_dists[i]);
 
         if (params->range_search && range_count > 0)
         {

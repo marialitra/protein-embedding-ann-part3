@@ -9,6 +9,7 @@ def neural_lsh(args, model: nn.Module, inverted: Dict[int, List[int]],  X: np.nd
 
     results = []
     all_lsh_neighbors = []
+    all_distances = []
 
     all_t_approx = []
 
@@ -147,11 +148,14 @@ def neural_lsh(args, model: nn.Module, inverted: Dict[int, List[int]],  X: np.nd
                 # If no candidates, return empty
                 if top_idx[local_i, 0] == -1:
                     neighbors = np.array([], dtype=int)
-                    # distances omitted
+                    # distances
+                    distances = np.array([], dtype=float)
                 else:
                     # top_idx contains dataset indices
                     neighbors = top_idx[local_i]
-                    # distances omitted
+                    # distances
+                    distances = np.sqrt(top_dist[local_i])
+
                 all_lsh_neighbors.append(neighbors)
                 # Omit approximate/true distance computations and AF metrics
 
@@ -180,7 +184,7 @@ def neural_lsh(args, model: nn.Module, inverted: Dict[int, List[int]],  X: np.nd
                 # ---------- Build output block (match other methods) ----------
                 block = [f"Query: {q_global_i}"]
                 for k in range(min(args.N, neighbors.size)):
-                    block.append(f"Nearest neighbor-{k+1}: {int(neighbors[k])}")
+                    block.append(f"Nearest neighbor-{k+1}: {int(neighbors[k])}, Distance: {distances[k]:.3f}")
 
                 # Omit range neighbors printing to keep format consistent
 
@@ -202,6 +206,7 @@ def neural_lsh(args, model: nn.Module, inverted: Dict[int, List[int]],  X: np.nd
     else:
         print("Skipping LSH search due to missing model or inverted file.")
         all_lsh_neighbors = [np.array([], dtype=int)] * len(Q)
+        all_distances = [np.array([], dtype=float)] * len(Q)
 
     compute_metrics_produce_output(args, results, all_t_approx, Q)
 

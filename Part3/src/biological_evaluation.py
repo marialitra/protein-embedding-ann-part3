@@ -10,6 +10,7 @@ import csv
 from collections import defaultdict
 from urllib.request import urlopen
 import time
+import re
 
 sys.path.append(os.path.dirname(__file__))
 from protein_search import compute_recall, parse_blast_tsv, parse_ann_txt
@@ -32,6 +33,7 @@ def get_ann_results(method, results_file, topN=5):
     """Parse ANN results file and return dict of {query: [neighbors]}"""
     results = defaultdict(list)
     current_query = None
+    neighbor_re = re.compile(r"Nearest neighbor-\d+\s*:\s*([^,\s]+)")
     
     with open(results_file, 'r') as f:
         for line in f:
@@ -39,12 +41,9 @@ def get_ann_results(method, results_file, topN=5):
             if line.startswith('Query:'):
                 current_query = line.split('Query:')[1].strip()
             elif line.startswith('Nearest neighbor') and current_query:
-                try:
-                    neighbor_id = line.split(':')[1].strip()
-                    if len(results[current_query]) < topN:
-                        results[current_query].append(neighbor_id)
-                except:
-                    pass
+                match = neighbor_re.search(line)
+                if match and len(results[current_query]) < topN:
+                    results[current_query].append(match.group(1).strip())
     
     return results
 
