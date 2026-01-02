@@ -5,7 +5,7 @@
 ALSO CHANGE THE FOLLOWING IN PART 1 POF THE PROJECT WHICH WE WILL UPLOAD IN GITHUB!!!!!
 IMPORTANT CHANGE!!!!!!!!!!!!!!!
 
-changes in ivfpq c source code, in ivfpq_init about 
+changes in ivfpq c source code, in ivfpq_init about
     // index->k = k_clusters; line 335
 
     and change it into:
@@ -21,7 +21,6 @@ changes in ivfpq c source code, in ivfpq_init about
 
     lines 351 - 358
 
-
 2.)
 
 not called ids.txt but verctors_ids.txt, problem?
@@ -35,5 +34,6 @@ not called ids.txt but verctors_ids.txt, problem?
 
 6.) BLAST takes the same N as search will take
 
-
 7.) it was running for nlsh but it is not an  option so i fixed it not to run for it
+
+now lets do grid search to compute hyperparameters. N=[1,10,50], seed =42, kculsters = [200, 500, 1000, 5000], nprobe =[50, 100, 250, 500, 1500] only if nprobe < kclusters, k =[2,4,6], L = [5, 10, 15], w = [20, 40, 80, 120, 300, 500, 1000], kproj =[12, 14, 16, 20], M= [2000, 5000, 10000], probes=[100, 250, 500], nbits=8, ivfpq-M =[8,16], nlsh-T = [1000, 1500], nlsh-m=[1800, 2000, 2200], nlsh-layers =[5,10,15], nlsh-nodes = [128, 256, 512], epochs = 8, nlsh-batch-size = 512
