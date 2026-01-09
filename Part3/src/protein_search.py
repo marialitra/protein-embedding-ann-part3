@@ -111,39 +111,79 @@ def compute_recall(blast_tsv, ann_txt, topN):
     return mean_recall, per_query
 
 
-def parse_blast_results_with_identity(blast_tsv_path: str) -> Dict[str, List[Tuple[str, float]]]:
-	"""
-	Parse BLAST results.tsv and return {query_id: [(target_id, identity%), ...]}
-	Identity is extracted from column 2 (0-indexed).
-	"""
-	blast_data = defaultdict(list)
+# def parse_blast_results_with_identity(blast_tsv_path: str) -> Dict[str, List[Tuple[str, float]]]:
+# 	"""
+# 	Parse BLAST results.tsv and return {query_id: [(target_id, identity%), ...]}
+# 	Identity is extracted from column 2 (0-indexed).
+# 	"""
+# 	blast_data = defaultdict(list)
 
-	with open(blast_tsv_path, "r") as f:
-		for line in f:
-			if not line.strip():
-				continue
-			cols = line.strip().split("\t")
-			if len(cols) < 3:
-				continue
+# 	with open(blast_tsv_path, "r") as f:
+# 		for line in f:
+# 			if not line.strip():
+# 				continue
+# 			cols = line.strip().split("\t")
+# 			if len(cols) < 3:
+# 				continue
 
-			query_id = cols[0]
-			target_field = cols[1]
-			identity_str = cols[2]
+# 			query_id = cols[0]
+# 			target_field = cols[1]
+# 			identity_str = cols[2]
 
-			# Extract protein ID from sp|ID|... format
-			if target_field.startswith("sp|"):
-				target_id = target_field.split("|")[1]
-			else:
-				target_id = target_field
+# 			# Extract protein ID from sp|ID|... format
+# 			if target_field.startswith("sp|"):
+# 				target_id = target_field.split("|")[1]
+# 			else:
+# 				target_id = target_field
 
-			try:
-				identity = float(identity_str)
-			except ValueError:
-				continue
+# 			try:
+# 				identity = float(identity_str)
+# 			except ValueError:
+# 				continue
 
-			blast_data[query_id].append((target_id, identity))
+# 			blast_data[query_id].append((target_id, identity))
 
-	return blast_data
+# 	return blast_data
+
+
+
+def parse_blast_results_with_identity(blast_tsv_path: str) -> Dict[str, Dict[str, float]]:
+    """
+    Returns:
+        {query_id: {target_id: best_identity}}
+    where best_identity is the maximum % identity across all HSPs.
+    """
+    blast_data = defaultdict(dict)
+
+    with open(blast_tsv_path, "r") as f:
+        for line in f:
+            if not line.strip():
+                continue
+
+            cols = line.strip().split("\t")
+            if len(cols) < 3:
+                continue
+
+            query_id = cols[0]
+            target_field = cols[1]
+            identity_str = cols[2]
+
+            if target_field.startswith("sp|"):
+                target_id = target_field.split("|")[1]
+            else:
+                continue
+
+            try:
+                identity = float(identity_str)
+            except ValueError:
+                continue
+
+            prev = blast_data[query_id].get(target_id)
+            if prev is None or identity > prev:
+                blast_data[query_id][target_id] = identity
+
+    return blast_data
+
 
 
 def parse_neighbor_results(results_txt: str, topN: int) -> Dict[str, List[Tuple[str, float]]]:
@@ -178,7 +218,8 @@ def generate_per_query_report(
 	qps: Optional[float],
 	method_results: Dict[str, List[Tuple[str, float]]],
 	blast_results_topn: Dict[str, set],
-	blast_results_identity: Dict[str, List[Tuple[str, float]]],
+	# blast_results_identity: Dict[str, List[Tuple[str, float]]],
+	blast_results_identity: Dict[str, Dict[str, float]],
 	blast_time_per_query: float,
 	blast_qps: float
 ):
@@ -194,7 +235,8 @@ def generate_per_query_report(
 		qps: Queries per second
 		method_results: {query_id: [(neighbor_id, distance), ...]}
 		blast_results_topn: {query_id: set(neighbor_ids)}
-		blast_results_identity: {query_id: [(neighbor_id, identity%), ...]}
+		-----blast_results_identity: {query_id: [(neighbor_id, identity%), ...]}----
+		blast_results_identity: {query_id: {target_id: best_identity}}
 	"""
 
 	with open(output_report, "w") as f:
@@ -208,7 +250,9 @@ def generate_per_query_report(
 			# Get neighbors for this query from results
 			neighbors = method_results.get(query_id, [])
 			blast_top_n = blast_results_topn.get(query_id, set())
-			blast_identities = {tid: ident for tid, ident in blast_results_identity.get(query_id, [])}
+			# blast_identities = {tid: ident for tid, ident in blast_results_identity.get(query_id, [])}
+			blast_identities = blast_results_identity.get(query_id, {})
+
 
 			# Compute recall for this query
 			if blast_top_n:
@@ -270,7 +314,8 @@ def generate_all_methods_report(
 	method_qps: Dict[str, Optional[float]],
 	method_results: Dict[str, Dict[str, List[Tuple[str, float]]]],
 	blast_results_topn: Dict[str, set],
-	blast_results_identity: Dict[str, List[Tuple[str, float]]],
+	# blast_results_identity: Dict[str, List[Tuple[str, float]]],
+	blast_results_identity: Dict[str, Dict[str, float]],
 	blast_time_per_query: float,
 	blast_qps:float
 ):
@@ -333,7 +378,8 @@ def generate_all_methods_report(
 			for m in method_order:
 				name = method_display[m]
 				neighbors = method_results.get(m, {}).get(query_id, [])
-				blast_identities = {tid: ident for tid, ident in blast_results_identity.get(query_id, [])}
+				# blast_identities = {tid: ident for tid, ident in blast_results_identity.get(query_id, [])}
+				blast_identities = blast_results_identity.get(query_id, {})
 
 				f.write("\n" + "Method: " + name + "\n")
 				f.write(f"{'Rank':<6} | {'Neighbor ID':<15} | {'Distance':<12} | {'BLAST Identity':<17} | {'In BLAST Top-N?':<17} | {'Bio Comment':<30}\n")

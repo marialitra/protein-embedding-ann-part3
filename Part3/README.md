@@ -96,5 +96,8 @@ This is 100% expected behavior.
 
 
 “BLAST reports multiple local alignments per protein; we collapse hits by UniProt ID and evaluate recall on unique target proteins, which is standard practice.”
-Also, in the blast reults in the report of the output
-we chose to take the results being shown from the last match of the protein in blast's list, we do not take the best results.
+Also, in the blast results in the report of the output
+we chose to take the results being shown from the best match of the protein in blast's list,
+the one with the grater blast identity.
+|-> “When multiple BLAST HSPs map to the same target protein, we retain the maximum percent 
+    identity to represent the strongest local similarity.”
