@@ -110,43 +110,6 @@ def compute_recall(blast_tsv, ann_txt, topN):
     mean_recall = sum(recalls) / len(recalls) if recalls else 0.0
     return mean_recall, per_query
 
-
-# def parse_blast_results_with_identity(blast_tsv_path: str) -> Dict[str, List[Tuple[str, float]]]:
-# 	"""
-# 	Parse BLAST results.tsv and return {query_id: [(target_id, identity%), ...]}
-# 	Identity is extracted from column 2 (0-indexed).
-# 	"""
-# 	blast_data = defaultdict(list)
-
-# 	with open(blast_tsv_path, "r") as f:
-# 		for line in f:
-# 			if not line.strip():
-# 				continue
-# 			cols = line.strip().split("\t")
-# 			if len(cols) < 3:
-# 				continue
-
-# 			query_id = cols[0]
-# 			target_field = cols[1]
-# 			identity_str = cols[2]
-
-# 			# Extract protein ID from sp|ID|... format
-# 			if target_field.startswith("sp|"):
-# 				target_id = target_field.split("|")[1]
-# 			else:
-# 				target_id = target_field
-
-# 			try:
-# 				identity = float(identity_str)
-# 			except ValueError:
-# 				continue
-
-# 			blast_data[query_id].append((target_id, identity))
-
-# 	return blast_data
-
-
-
 def parse_blast_results_with_identity(blast_tsv_path: str) -> Dict[str, Dict[str, float]]:
     """
     Returns:
@@ -288,7 +251,7 @@ def generate_per_query_report(
 				in_blast = neighbor_id in blast_top_n
 				blast_in_str = "Yes" if in_blast else "No"
 				blast_id_val = blast_identities.get(neighbor_id)
-				blast_id_str = f"{f'{blast_id_val:.2f}%' : <17}" if blast_id_val is not None else "undetected".ljust(17)
+				blast_id_str = f"{f'{blast_id_val:.0f}%' : <17}" if blast_id_val is not None else "undetected".ljust(17)
 
 				# Bio comment logic
 				if in_blast and blast_id_val is not None and blast_id_val > 30:
@@ -470,8 +433,9 @@ def run_nlsh(
 	output_txt: str,
 	N: int,
 	R: float,
+	range: bool,
 	seed: int,
-	nlsh_index: Optional[str],
+	nlsh_index: str,
 	nlsh_T: int,
 	nlsh_m: int,
 	nlsh_imbalance: float,
@@ -529,7 +493,7 @@ def run_nlsh(
 		"-N", str(N),
 		"-R", str(R),
 		"-T", str(nlsh_T),
-		"-range", "false",
+		"-range", str(range).lower(),
 	]
 
 	print("[protein_search] Running NLSH search on protein data ...")
@@ -562,38 +526,37 @@ def run_nlsh(
 	return qps
 
 def run_protein_search(
-	base_dat: str,
-	query_fasta: str,
-	output_txt: str,
-	method: str = "ivfflat",
-	N: int = 10,
-	R: float = 0.5,
-	seed: int = 42,
-	# IVFFlat / IVFPQ params
-	kclusters: int = 200,
-	nprobe: int = 80,
-	# LSH params
-	k: int = 4,
-	L: int = 70,
-	w: float = 4.0,
-	# Hypercube params
-	kproj: int = 14,
-	M: int = 2000,
-	probes: int = 100,
-	# IVFPQ specific
-	nbits: int = 8,
-	ivfpq_M: int = 16,
-	# NLSH specific
-	nlsh_index: Optional[str] = None,
-	nlsh_T: int = 300,
-	nlsh_m: int = 2000,
-	nlsh_imbalance: float = 0.1,
-	nlsh_kahip_mode: int = 0,
-	nlsh_layers: int = 3,
-	nlsh_nodes: int = 256,
-	nlsh_epochs: int = 5,
-	nlsh_batch_size: int = 512,
-	nlsh_lr: float = 1e-3,
+		base_dat: str,
+		query_fasta: str,
+		output_txt: str,
+		method: str,
+		N: int,
+		R: float,
+		range: bool,
+		seed: int,
+		k: int,
+		L: int,
+		lsh_w: float,
+		kproj: int,
+		hyper_w: float,
+		hyper_M: int,
+		probes: int,
+		flat_kclusters: int,
+		flat_nprobe: int,
+		pq_kclusters: int,
+		pq_nprobe: int,
+		pq_M: int,
+		nbits: int,
+		nlsh_index: str,
+		nlsh_T: int,
+		nlsh_m: int,
+		nlsh_imbalance: float,
+		nlsh_kahip_mode: int,
+		nlsh_layers: int,
+		nlsh_nodes: int,
+		nlsh_epochs: int,
+		nlsh_batch_size: int,
+		nlsh_lr: float
 ):
 	"""
 	1) Build query embeddings via Part3/src/protein_embed.py -> query.dat
@@ -657,6 +620,7 @@ def run_protein_search(
 						output_txt=algo_output,
 						N=N,
 						R=R,
+						range=range,
 						seed=seed,
 						nlsh_index=nlsh_index,
 						nlsh_T=nlsh_T,
@@ -681,17 +645,21 @@ def run_protein_search(
 						method=algo,
 						N=N,
 						R=R,
+						range=range,
 						seed=seed,
-						kclusters=kclusters,
-						nprobe=nprobe,
 						k=k,
 						L=L,
-						w=w,
+						lsh_w=lsh_w,
 						kproj=kproj,
-						M=M,
+						hyper_w=hyper_w,
+						hyper_M=hyper_M,
 						probes=probes,
+						flat_kclusters=flat_kclusters,
+						flat_nprobe=flat_nprobe,
+						pq_kclusters=pq_kclusters,
+						pq_nprobe=pq_nprobe,
+						pq_M=pq_M,
 						nbits=nbits,
-						ivfpq_M=ivfpq_M,
 						nlsh_index=nlsh_index,
 						nlsh_T=nlsh_T,
 						nlsh_m=nlsh_m,
@@ -701,7 +669,7 @@ def run_protein_search(
 						nlsh_nodes=nlsh_nodes,
 						nlsh_epochs=nlsh_epochs,
 						nlsh_batch_size=nlsh_batch_size,
-						nlsh_lr=nlsh_lr,
+						nlsh_lr=nlsh_lr
 					)
 					all_qps[algo] = qps
 			except Exception as e:
@@ -752,9 +720,10 @@ def run_protein_search(
 		qps = run_nlsh(
 			base_dat=base_dat,
 			query_dat=query_dat,
-			output_txt=output_txt,
+			output_txt=algo_output,
 			N=N,
 			R=R,
+			range=range,
 			seed=seed,
 			nlsh_index=nlsh_index,
 			nlsh_T=nlsh_T,
@@ -813,25 +782,24 @@ def run_protein_search(
 		"-N", str(N),
 		"-R", str(R),
 		"-type", "protein",
-		"-range", "false",
+		"-range", str(range).lower(),
+		"-seed", str(seed),
 	]
 
 	if method == "lsh":
-		cmd.extend(["-k", str(k), "-L", str(L), "-w", str(w), "-lsh"])
+		cmd.extend(["-k", str(k), "-L", str(L), "-w", str(lsh_w), "-lsh"])
 		algo = "lsh"
 	elif method == "hypercube":
-		cmd.extend(["-kproj", str(kproj), "-w", str(w), "-M", str(M), "-probes", str(probes), "-hypercube"])
+		cmd.extend(["-kproj", str(kproj), "-w", str(hyper_w), "-M", str(hyper_M), "-probes", str(probes), "-hypercube"])
 		algo = "hypercube"
 	elif method == "ivfflat":
-		cmd.extend(["-kclusters", str(kclusters), "-nprobe", str(nprobe), "-ivfflat"])
+		cmd.extend(["-kclusters", str(flat_kclusters), "-nprobe", str(flat_nprobe), "-ivfflat"])
 		algo = "ivfflat"
 	elif method == "ivfpq":
-		cmd.extend(["-kclusters", str(kclusters), "-nprobe", str(nprobe), "-M", str(ivfpq_M), "-nbits", str(nbits), "-ivfpq"])
+		cmd.extend(["-kclusters", str(pq_kclusters), "-nprobe", str(pq_nprobe), "-M", str(pq_M), "-nbits", str(nbits), "-ivfpq"])
 		algo = "ivfpq"
 	else:
 		raise ValueError(f"Unknown method: {method}. Choose from: lsh, hypercube, ivfflat, ivfpq, nlsh")
-
-	cmd.extend(["-seed", str(seed)])
 
 	print(f"[protein_search] Running {method.upper()} on protein data ...")
 	error_flag = run_algorithm(cmd)
@@ -868,44 +836,52 @@ def run_protein_search(
 
 def main():
 	parser = libraries.argparse.ArgumentParser("Protein ANN search wrapper")
-	parser.add_argument("-d", required=True, help="Path to base protein vectors .dat (float32 N x 320)")
-	parser.add_argument("-q", required=True, help="Path to FASTA with query sequences")
-	parser.add_argument("-o", "--output", required=True, help="Output neighbors file (text)")
-	parser.add_argument("-method", type=str, default="ivfflat", choices=["lsh", "hypercube", "ivfflat", "ivfpq", "neural", "all"],
+	parser.add_argument("-d", type=str, required=True, help="Path to base protein vectors .dat (float32 N x 320)")
+	parser.add_argument("-q", type=str, required=True, help="Path to FASTA with query sequences")
+	parser.add_argument("-o", "--output", type=str, required=True, help="Output neighbors file (text)")
+	parser.add_argument("-method", type=str, required=True, choices=["lsh", "hypercube", "ivfflat", "ivfpq", "neural", "all"],
 						help="ANN algorithm to use (or 'all' to run all methods)")
+	
+	# Global Parameters
 	parser.add_argument("-N", type=int, default=10, help="Number of nearest neighbors")
 	parser.add_argument("-R", type=float, default=0.5, help="Range search radius (for range search mode)")
-	parser.add_argument("--seed", type=int, default=42, help="Random seed")
-	
-	# IVFFlat / IVFPQ params
-	parser.add_argument("--kclusters", type=int, default=200, help="Number of clusters (ivfflat/ivfpq)")
-	parser.add_argument("--nprobe", type=int, default=80, help="Number of probes (ivfflat/ivfpq)")
+	parser.add_argument("-range", type=bool, default=False, help="Flag to enable Range Search")
+	parser.add_argument("-seed", type=int, default=42, help="Random seed")
 	
 	# LSH params
-	parser.add_argument("-k", type=int, default=4, help="Hash functions per table (lsh)")
-	parser.add_argument("-L", type=int, default=70, help="Number of hash tables (lsh)")
-	parser.add_argument("-w", type=float, default=4.0, help="Window width (lsh/hypercube)")
+	parser.add_argument("-k", type=int, default=2, help="Hash functions per table (LSH)")
+	parser.add_argument("-L", type=int, default=5, help="Number of hash tables (LSH)")
+	parser.add_argument("--lsh-w", type=float, default=20.0, help="Window width (LSH)")
 	
 	# Hypercube params
-	parser.add_argument("--kproj", type=int, default=14, help="Number of projections (hypercube)")
-	parser.add_argument("-M", type=int, default=2000, help="Max candidates to check (hypercube)")
-	parser.add_argument("--probes", type=int, default=100, help="Vertices to examine (hypercube)")
+	parser.add_argument("-kproj", type=int, default=12, help="Number of projections (Hypercube)")
+	parser.add_argument("--hyper-w", type=float, default=20.0, help="Window width (Hypercube)")
+	parser.add_argument("--hyper-M", type=int, default=10000, help="Max candidates to check (Hypercube)")
+	parser.add_argument("-probes", type=int, default=100, help="Vertices to examine (Hypercube)")
+	
+	# IVFFlat / IVFPQ params
+	parser.add_argument("--flat-kclusters", type=int, default=200, help="Number of clusters (IVF-Flat)")
+	parser.add_argument("--flat-nprobe", type=int, default=100, help="Number of probes (IVF-Flat)")
+	parser.add_argument("--pq-kclusters", type=int, default=500, help="Number of clusters (IVFPQ)")
+	parser.add_argument("--pq-nprobe", type=int, default=100, help="Number of probes (IVFPQ)")
 	
 	# IVFPQ specific
-	parser.add_argument("--nbits", type=int, default=8, help="Bits per subspace (ivfpq)")
-	parser.add_argument("--ivfpq-M", type=int, default=16, help="Number of subvectors (ivfpq, must divide dimension)")
+	parser.add_argument("--pq-M", type=int, default=16, help="Number of subvectors (IVFPQ, must divide dimension)")
+	parser.add_argument("-nbits", type=int, default=8, help="Bits per subspace (IVFPQ)")
 
-	# NLSH specific
+	# NLSH specific - search phase
 	parser.add_argument("--nlsh-index", type=str, default=None, help="Directory for NLSH index (default: alongside output)")
-	parser.add_argument("--nlsh-T", type=int, default=1500, help="Number of bins to probe (nlsh)")
-	parser.add_argument("--nlsh-m", type=int, default=2000, help="Number of parts for KaHIP (nlsh build)")
-	parser.add_argument("--nlsh-imbalance", type=float, default=0.1, help="KaHIP imbalance (nlsh build)")
-	parser.add_argument("--nlsh-kahip-mode", type=int, default=0, help="KaHIP mode (nlsh build)")
-	parser.add_argument("--nlsh-layers", type=int, default=10, help="MLP layers (nlsh build)")
-	parser.add_argument("--nlsh-nodes", type=int, default=256, help="MLP hidden units (nlsh build)")
-	parser.add_argument("--nlsh-epochs", type=int, default=8, help="Training epochs (nlsh build)")
-	parser.add_argument("--nlsh-batch-size", type=int, default=512, help="Batch size (nlsh build)")
-	parser.add_argument("--nlsh-lr", type=float, default=1e-3, help="Learning rate (nlsh build)")
+	parser.add_argument("--nlsh-T", type=int, default=1000, help="Number of bins to probe (NLSH)")
+
+	# NLSH specific - build phase
+	parser.add_argument("--nlsh-m", type=int, default=1800, help="Number of parts for KaHIP (NLSH build)")
+	parser.add_argument("--nlsh-imbalance", type=float, default=0.1, help="KaHIP imbalance (NLSH build)")
+	parser.add_argument("--nlsh-kahip-mode", type=int, default=0, help="KaHIP mode (NLSH build)")
+	parser.add_argument("--nlsh-layers", type=int, default=5, help="MLP layers (NLSH build)")
+	parser.add_argument("--nlsh-nodes", type=int, default=128, help="MLP hidden units (NLSH build)")
+	parser.add_argument("--nlsh-epochs", type=int, default=8, help="Training epochs (NLSH build)")
+	parser.add_argument("--nlsh-batch-size", type=int, default=512, help="Batch size (NLSH build)")
+	parser.add_argument("--nlsh-lr", type=float, default=1e-3, help="Learning rate (NLSH build)")
 
 	args = parser.parse_args()
 
@@ -917,9 +893,7 @@ def main():
 	# So let's change it!
 	if method_lower == "neural":
 		method_lower = "nlsh"
-
-	print(method_lower)
-
+		
 	all_qps = run_protein_search(
 		base_dat=args.d,
 		query_fasta=args.q,
@@ -927,17 +901,21 @@ def main():
 		method=method_lower,
 		N=args.N,
 		R=args.R,
+		range=args.range,
 		seed=args.seed,
-		kclusters=args.kclusters,
-		nprobe=args.nprobe,
 		k=args.k,
 		L=args.L,
-		w=args.w,
+		lsh_w=args.lsh_w,
 		kproj=args.kproj,
-		M=args.M,
+		hyper_w=args.hyper_w,
+		hyper_M=args.hyper_M,
 		probes=args.probes,
+		flat_kclusters=args.flat_kclusters,
+		flat_nprobe=args.flat_nprobe,
+		pq_kclusters=args.pq_kclusters,
+		pq_nprobe=args.pq_nprobe,
+		pq_M=args.pq_M,
 		nbits=args.nbits,
-		ivfpq_M=args.ivfpq_M,
 		nlsh_index=args.nlsh_index,
 		nlsh_T=args.nlsh_T,
 		nlsh_m=args.nlsh_m,

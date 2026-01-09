@@ -15,9 +15,9 @@ def main():
     parser = libraries.argparse.ArgumentParser(description="Generate protein embeddings using ESM2")
     parser.add_argument('-i', '--input', type=str, required=True, help='Input FASTA file')
     parser.add_argument('-o', '--output', type=str, required=True, help='Output vectors.dat file')
-    parser.add_argument('-model', '--model', type=str, default='esm2_t6_8M_UR50D')
-    parser.add_argument('--batch-size', type=int, default=64)
-    parser.add_argument('--max-len', type=int, default=1022)
+    parser.add_argument('-model', '--model', type=str, default='esm2_t6_8M_UR50D', help='Enter what model you want to use')
+    parser.add_argument('--batch-size', type=int, default=64, help='Optionally enter the batch size')
+    parser.add_argument('--max-len', type=int, default=1022, help='Optionally enter the max length')
 
     args = parser.parse_args()
 
