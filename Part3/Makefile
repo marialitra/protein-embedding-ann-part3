@@ -15,7 +15,7 @@ search:
 	python3 src/protein_search.py \
 	-d output/embeddings/vectors_50k_opt.dat -q Data/targets.fasta \
 	-o output/search/results.txt \
-	-method all
+	-method nlsh
 # Possible Inputs:
 # -method <all|lsh|hypercube|ivfflat|ivfpq|neural>
 
@@ -43,7 +43,7 @@ blast: blast_search
 .PHONY: blast_filter
 
 # Grid search for hyperparameter tuning
-# Usage: make grid_search [method=<all|lsh|hypercube|ivfflat|ivfpq|nlsh>]
+# Usage: make grid_search [method=<all|lsh|hypercube|ivfflat|ivfpq|neural>]
 method = all
 grid_search:
 	python3 src/grid_search.py \

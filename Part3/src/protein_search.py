@@ -238,9 +238,8 @@ def generate_per_query_report(
 			# [2] Top-N neighbors
 			f.write("[2] Top-N neighbors\n")
 			f.write("-" * 110 + "\n")
-			f.write(
-				f"{'Rank':<6} | {'Neighbor ID':<15} | {'Distance':<12} | {'BLAST Identity':<17} | {'In BLAST Top-N?':<17} | {'Bio Comment':<30}\n"
-			)
+			f.write("\n" + "Method: " + method_name + "\n")
+			f.write(f"{'Rank':<6} | {'Neighbor ID':<15} | {'Distance':<12} | {'BLAST Identity':<17} | {'In BLAST Top-N?':<17} | {'Bio Comment':<30}\n")
 			f.write("-" * 110 + "\n")
 
 			# Table rows
@@ -354,8 +353,7 @@ def generate_all_methods_report(
 				neighbors = method_results.get(m, {}).get(query_id, [])
 				blast_identities = {tid: ident for tid, ident in blast_results_identity.get(query_id, [])}
 
-				f.write("\n" + name + "\n")
-				f.write("-" * 110 + "\n")
+				f.write("\n" + "Method: " + name + "\n")
 				f.write(f"{'Rank':<6} | {'Neighbor ID':<15} | {'Distance':<12} | {'BLAST Identity':<17} | {'In BLAST Top-N?':<17} | {'Bio Comment':<30}\n")
 				f.write("-" * 110 + "\n")
 
@@ -920,43 +918,39 @@ def main():
 		nlsh_lr=args.nlsh_lr,
 	)
 
-	# # Deleting unecessary files
-	# if method_lower == "all":
-	# 	all_methods = ["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"]
-	# 	base_output = os.path.splitext(args.output)[0]
-		
-	# 	for algo in all_methods:
-	# 		os.remove(f"{base_output}_{algo}.queries_ids.txt")
-	# 		os.remove(f"{base_output}_{algo}.queries.dat")
-	# else:
-	# 	os.remove(os.path.splitext(args.output)[0] + ".queries.dat")
-	# 	os.remove(os.path.splitext(args.output)[0] + ".queries_ids.txt")
-	
-
 	# Print All QPS status
 	if isinstance(all_qps, dict):
 		if method_lower == "all":
 			print("\nQPS results:")
 
 			for method, qps in all_qps.items():
-				if method == "lsh" or method == "nlsh" or method == "ivfpq":
-					print(f"  {method.upper():10s}: {qps}") # LSH / NLSH / IVFPQ
+				if method == "lsh":
+					name = method.upper()  # LSH
+				elif method == "ivfpq":
+					name = method[:3].upper() + "-" + method[3:].upper()  # IVF-PQ
 				elif method == "ivfflat":
-					method = method[:4].upper() + method[4:]  #IVFFlat
-					print(f"  {method:10s}: {qps}") # everything else
+					name = method[:3].upper() + "-" + method[3:].capitalize()  #IVF-Flat
+				elif method == "nlsh":
+					name = "Neural LSH"
 				else:
-					print(f"  {method.capitalize():10s}: {qps}") # everything else
+					name = method.capitalize() # everything else
+				
+				print(f"  {name:10s}: {qps}")
 	else:
-		print("\nQPS result:")
-
-		if method_lower == "lsh" or method_lower == "ivfpq":
-			method_lower = method_lower.upper()  # LSH / IVFPQ
+		# Set the method's name in order to be printed correctly
+		if method_lower == "lsh":
+			name = method_lower.upper()  # LSH
+		elif method_lower == "ivfpq":
+			name = method_lower[:3].upper() + "-" + method_lower[3:].upper()  # IVF-PQ
 		elif method_lower == "ivfflat":
-			method_lower = method_lower[:3].upper() + method_lower[3:]  #IVFFlat
+			name = method_lower[:3].upper() + "-" + method_lower[3:].capitalize()  #IVF-Flat
+		elif method_lower == "nlsh":
+			name = "Neural LSH"
 		else:
-			method_lower = method_lower.capitalize() # everything else
+			name = method_lower.capitalize() # everything else
 
-		print(f"  {method_lower:10s}: {all_qps}")
+		print("\nQPS result:")
+		print(f"  {name:10s}: {all_qps}")
 
 
 	# Running BLAST command
