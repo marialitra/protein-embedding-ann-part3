@@ -247,7 +247,7 @@ def generate_per_query_report(
 				in_blast = neighbor_id in blast_top_n
 				blast_in_str = "Yes" if in_blast else "No"
 				blast_id_val = blast_identities.get(neighbor_id)
-				blast_id_str = f"{blast_id_val:<17f}" if blast_id_val is not None else "undetected".ljust(17)
+				blast_id_str = f"{f'{blast_id_val:.0f}%' : <17}" if blast_id_val is not None else "undetected".ljust(17)
 
 				# Bio comment logic
 				if in_blast and blast_id_val is not None and blast_id_val > 30:
@@ -262,13 +262,6 @@ def generate_per_query_report(
 				f.write(
 					f"{rank:<6} | {neighbor_id:<15} | {distance:<12.2f} | {blast_id_str} | {blast_in_str:<17} | {bio_comment:<30}\n"
 				)
-
-		f.write("\n" + "=" * 110 + "\n")
-		f.write(
-			"Note: Distance values from embedding space (cosine-based). "
-			"BLAST ID% from BLAST results. Bio Comment inferred from BLAST identity thresholds.\n"
-		)
-		f.write("=" * 110 + "\n")
 
 	print(f"[protein_search] Per-query report written to {output_report}")
 
@@ -361,7 +354,7 @@ def generate_all_methods_report(
 					in_blast = neighbor_id in blast_top_n
 					blast_in_str = "Yes" if in_blast else "No"
 					blast_id_val = blast_identities.get(neighbor_id)
-					blast_id_str = f"{blast_id_val:<17f}" if blast_id_val is not None else "undetected".ljust(17)
+					blast_id_str = f"{f'{blast_id_val:.0f}%' : <17}" if blast_id_val is not None else "undetected".ljust(17)
 
 					if in_blast and blast_id_val is not None and blast_id_val > 30:
 						bio_comment = "Homolog"
@@ -376,12 +369,6 @@ def generate_all_methods_report(
 						f"{rank:<6} | {neighbor_id:<15} | {distance:<12.2f} | {blast_id_str} | {blast_in_str:<17} | {bio_comment:<30}\n"
 					)
 
-			f.write("\n" + "=" * 110 + "\n")
-			f.write(
-				"Note: Distance values from embedding space (cosine-based). "
-				"BLAST ID% from BLAST results. Bio Comment inferred from BLAST identity thresholds.\n"
-			)
-			f.write("=" * 110 + "\n\n")
 
 	print(f"[protein_search] Consolidated all-methods report written to {output_report}")
 
@@ -1043,14 +1030,22 @@ def main():
 		base_output = os.path.splitext(args.output)[0]
 		
 		for algo in all_methods:
-			os.remove(f"{base_output}_{algo}.txt")
-			os.remove(f"{base_output}_{algo}.queries_ids.txt")
-			os.remove(f"{base_output}_{algo}.queries.dat")
+			if os.path.exists(f"{base_output}_{algo}.txt"):
+				os.remove(f"{base_output}_{algo}.txt")
+
+			if os.path.exists(f"{base_output}_{algo}.queries_ids.txt"):
+				os.remove(f"{base_output}_{algo}.queries_ids.txt")
+
+			if os.path.exists(f"{base_output}_{algo}.queries.dat"):
+				os.remove(f"{base_output}_{algo}.queries.dat")
 	else:
 		base_output = os.path.splitext(args.output)[0]
 
-		os.remove(f"{base_output}.queries.dat")
-		os.remove(f"{base_output}.queries_ids.txt")
+		if os.path.exists(f"{base_output}.queries.dat"):
+			os.remove(f"{base_output}.queries.dat")
+		
+		if os.path.exists(f"{base_output}.queries_ids.txt"):
+			os.remove(f"{base_output}.queries_ids.txt")
 	
 
 
