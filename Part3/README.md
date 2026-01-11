@@ -104,3 +104,6 @@ the one with the grater blast identity.
 
 
 11.) we hardcoded the dimension of the data! as we will only take these as the assignment states
+
+12.) use of cosine and eucleidian tell in report (use of eucleidian only in ivfpq)
+“Cosine similarity was used for all embedding-based ANN methods except IVF-PQ. Product quantization relies on Euclidean geometry and residual encoding, which is incompatible with cosine similarity. Therefore, IVF-PQ was evaluated using Euclidean distance, consistent with standard practice. Neural LSH inherits the cosine similarity metric from its IVF-Flat search backend.”

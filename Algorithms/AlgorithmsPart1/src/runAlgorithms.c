@@ -111,7 +111,6 @@ void run_ivfpq(SearchParams* params, Dataset* dataset)
 {
     // printf("Running IVFPQ with dataset: %s\n", params->dataset_path);
     
-    // Use default PQ parameters: M=8 subspaces, nbits=8 (256 centroids per subspace)
     int M = params->M;
     int nbits = params->nbits;
     

@@ -258,14 +258,14 @@ def generate_per_query_report(
 					bio_comment = "Homolog"
 				elif in_blast and blast_id_val is not None and 20 < blast_id_val <= 30:
 					bio_comment = "Remote homolog"
+				elif in_blast and blast_id_val is not None and blast_id_val <= 20:
+					bio_comment = "Weak similarity"
 				elif not in_blast:
 					bio_comment = "Possible false positive"
 				else:
 					bio_comment = ""
 
-				f.write(
-					f"{rank:<6} | {neighbor_id:<15} | {distance:<12.2f} | {blast_id_str} | {blast_in_str:<17} | {bio_comment:<30}\n"
-				)
+				f.write(f"{rank:<6} | {neighbor_id:<15} | {distance:<12.2f} | {blast_id_str} | {blast_in_str:<17} | {bio_comment:<30}\n")
 
 	print(f"[protein_search] Per-query report written to {output_report}")
 
@@ -358,14 +358,14 @@ def generate_all_methods_report(
 						bio_comment = "Homolog"
 					elif in_blast and blast_id_val is not None and 20 < blast_id_val <= 30:
 						bio_comment = "Remote homolog"
+					elif in_blast and blast_id_val is not None and blast_id_val <= 20:
+						bio_comment = "Weak similarity"
 					elif not in_blast:
 						bio_comment = "Possible false positive"
 					else:
 						bio_comment = ""
 
-					f.write(
-						f"{rank:<6} | {neighbor_id:<15} | {distance:<12.2f} | {blast_id_str} | {blast_in_str:<17} | {bio_comment:<30}\n"
-					)
+					f.write(f"{rank:<6} | {neighbor_id:<15} | {distance:<12.2f} | {blast_id_str} | {blast_in_str:<17} | {bio_comment:<30}\n")
 
 
 	print(f"[protein_search] Consolidated all-methods report written to {output_report}")
@@ -843,7 +843,7 @@ def main():
 						help="ANN algorithm to use (or 'all' to run all methods)")
 	
 	# Global Parameters
-	parser.add_argument("-N", type=int, default=10, help="Number of nearest neighbors")
+	parser.add_argument("-N", type=int, default=50, help="Number of nearest neighbors")
 	parser.add_argument("-R", type=float, default=0.5, help="Range search radius (for range search mode)")
 	parser.add_argument("-range", type=bool, default=False, help="Flag to enable Range Search")
 	parser.add_argument("-seed", type=int, default=42, help="Random seed")
@@ -866,7 +866,7 @@ def main():
 	parser.add_argument("--pq-nprobe", type=int, default=100, help="Number of probes (IVFPQ)")
 	
 	# IVFPQ specific
-	parser.add_argument("--pq-M", type=int, default=16, help="Number of subvectors (IVFPQ, must divide dimension)")
+	parser.add_argument("--pq-M", type=int, default=15, help="Number of subvectors (IVFPQ, must divide dimension)")
 	parser.add_argument("-nbits", type=int, default=8, help="Bits per subspace (IVFPQ)")
 
 	# NLSH specific - search phase
