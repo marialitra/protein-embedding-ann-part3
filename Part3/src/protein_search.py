@@ -203,6 +203,10 @@ def generate_per_query_report(
 	"""
 
 	with open(output_report, "w") as f:
+		f.write("=" * 110 + "\n")
+		f.write(f"ANN Evaluation Report (method = {method_name})\n")
+		f.write("=" * 110 + "\n\n")
+
 		# Iterate through each query
 		for query_id in query_ids:
 			f.write("\n" + "=" * 110 + "\n")
@@ -276,6 +280,7 @@ def generate_all_methods_report(
 	topN: int,
 	method_qps: Dict[str, Optional[float]],
 	method_results: Dict[str, Dict[str, List[Tuple[str, float]]]],
+	methods: List[str],
 	blast_results_topn: Dict[str, set],
 	# blast_results_identity: Dict[str, List[Tuple[str, float]]],
 	blast_results_identity: Dict[str, Dict[str, float]],
@@ -294,12 +299,10 @@ def generate_all_methods_report(
 		"ivfpq": "IVF-PQ",
 		"nlsh": "Neural LSH",
 	}
-	method_order = ["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"]
 
 	with open(output_report, "w") as f:
 		f.write("=" * 110 + "\n")
 		f.write("ANN Evaluation Report (method = all)\n")
-		f.write(f"Top-N = {topN}\n")
 		f.write("=" * 110 + "\n\n")
 
 		for query_id in query_ids:
@@ -316,7 +319,7 @@ def generate_all_methods_report(
 
 			blast_top_n = blast_results_topn.get(query_id, set())
 
-			for m in method_order:
+			for m in methods:
 				name = method_display[m]
 				qps_val = method_qps.get(m)
 				neighbors = method_results.get(m, {}).get(query_id, [])
@@ -338,7 +341,7 @@ def generate_all_methods_report(
 
 			# [2] Top-N neighbors per method
 			f.write("[2] Top-N neighbors per method\n")
-			for m in method_order:
+			for m in methods:
 				name = method_display[m]
 				neighbors = method_results.get(m, {}).get(query_id, [])
 				# blast_identities = {tid: ident for tid, ident in blast_results_identity.get(query_id, [])}
@@ -672,6 +675,7 @@ def run_protein_search(
 						nlsh_lr=nlsh_lr
 					)
 					all_qps[algo] = qps
+						
 			except Exception as e:
 				print(f"[protein_search] ERROR running {algo.upper()}: {e}")
 				all_qps[algo] = None
@@ -720,7 +724,7 @@ def run_protein_search(
 		qps = run_nlsh(
 			base_dat=base_dat,
 			query_dat=query_dat,
-			output_txt=algo_output,
+			output_txt=os.path.abspath(output_txt),
 			N=N,
 			R=R,
 			range=range,
@@ -859,13 +863,13 @@ def main():
 	parser.add_argument("--hyper-M", type=int, default=10000, help="Max candidates to check (Hypercube)")
 	parser.add_argument("-probes", type=int, default=100, help="Vertices to examine (Hypercube)")
 	
-	# IVFFlat / IVFPQ params
+	# IVFFlat params
 	parser.add_argument("--flat-kclusters", type=int, default=200, help="Number of clusters (IVF-Flat)")
 	parser.add_argument("--flat-nprobe", type=int, default=100, help="Number of probes (IVF-Flat)")
+	
+	# IVFPQ params
 	parser.add_argument("--pq-kclusters", type=int, default=500, help="Number of clusters (IVFPQ)")
 	parser.add_argument("--pq-nprobe", type=int, default=100, help="Number of probes (IVFPQ)")
-	
-	# IVFPQ specific
 	parser.add_argument("--pq-M", type=int, default=15, help="Number of subvectors (IVFPQ, must divide dimension)")
 	parser.add_argument("-nbits", type=int, default=8, help="Bits per subspace (IVFPQ)")
 
@@ -928,12 +932,33 @@ def main():
 		nlsh_lr=args.nlsh_lr,
 	)
 
+	# If results.txt exist, keep the old verion
+	# As the algorithm did not run do not delete it
+	if all_qps == None:
+		base_output = os.path.splitext(args.output)[0]
+
+		if os.path.exists(f"{base_output}.queries.dat"):
+			os.remove(f"{base_output}.queries.dat")
+		
+		if os.path.exists(f"{base_output}.queries_ids.txt"):
+			os.remove(f"{base_output}.queries_ids.txt")
+			
+		return
+
+
+	all_methods = ["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"]
+	methods = ["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"]
+
 	# Print All QPS status
 	if isinstance(all_qps, dict):
 		if method_lower == "all":
 			print("\nQPS results:")
 
 			for method, qps in all_qps.items():
+				if qps == None:
+					methods.remove(method)
+					continue
+
 				if method == "lsh":
 					name = method.upper()  # LSH
 				elif method == "ivfpq":
@@ -987,15 +1012,13 @@ def main():
 	# Compute Recall against BLAST results (topN.tsv) vs the results.txt
 	# If method.lower == "all" then compare all the results_algo.txt vs the BLAST_results.tsv
 	if method_lower == "all":
-		all_methods = ["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"]
-		all_methods_display = ["Euclidean LSH", "Hypercube", "IVF-Flat", "IVF-PQ", "Neural LSH"]
 		base_output = os.path.splitext(args.output)[0]
 
 		print("\nRecall results (average, for logging only):")
 		method_recall = {}
 		method_results = {}
 
-		for algo, algo_display in zip(all_methods, all_methods_display):
+		for algo in methods:
 			ann_txt = f"{base_output}_{algo}.txt"
 			mean_recall, _ = compute_recall(blast_tsv=blast_results, ann_txt=ann_txt, topN=args.N)
 			method_recall[algo] = mean_recall
@@ -1022,6 +1045,7 @@ def main():
 			topN=args.N,
 			method_qps=all_qps,
 			method_results=method_results,
+			methods=methods,
 			blast_results_topn=blast_gt,
 			blast_results_identity=blast_identity,
 			blast_time_per_query = blast_time_per_query,
@@ -1066,7 +1090,6 @@ def main():
 
 	# Deleting unecessary files
 	if method_lower == "all":
-		all_methods = ["lsh", "hypercube", "ivfflat", "ivfpq", "nlsh"]
 		base_output = os.path.splitext(args.output)[0]
 		
 		for algo in all_methods:

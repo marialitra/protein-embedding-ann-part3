@@ -27,7 +27,10 @@ int main(int argc, char **argv)
     else if(params.dataset_type == DATA_SIFT)
         printf("SIFT Dataset loaded: %d points of dimension %d\n", dataset->size, dataset->dimension);
     else if(params.dataset_type == DATA_PROTEIN)
-        printf("PROTEIN Dataset loaded: %d points of dimension %d (metric: cosine)\n", dataset->size, dataset->dimension);
+        if (params.algorithm != ALG_IVFPQ)
+            printf("PROTEIN Dataset loaded: %d points of dimension %d (metric: cosine)\n", dataset->size, dataset->dimension);
+        if (params.algorithm == ALG_IVFPQ)
+            printf("PROTEIN Dataset loaded: %d points of dimension %d (metric: euclidean)\n", dataset->size, dataset->dimension);
 
     unsigned int seed = 42;
     if (params.seed)

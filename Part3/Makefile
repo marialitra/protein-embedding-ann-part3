@@ -44,7 +44,7 @@ blast: blast_search
 
 # Grid search for hyperparameter tuning
 # Usage: make grid_search [method=<all|lsh|hypercube|ivfflat|ivfpq|neural>]
-method = all
+method = neural
 grid_search:
 	python3 src/grid_search.py \
 	-d output/embeddings/vectors_50k_opt.dat \

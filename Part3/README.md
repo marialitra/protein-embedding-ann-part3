@@ -107,3 +107,9 @@ the one with the grater blast identity.
 
 12.) use of cosine and eucleidian tell in report (use of eucleidian only in ivfpq)
 “Cosine similarity was used for all embedding-based ANN methods except IVF-PQ. Product quantization relies on Euclidean geometry and residual encoding, which is incompatible with cosine similarity. Therefore, IVF-PQ was evaluated using Euclidean distance, consistent with standard practice. Neural LSH inherits the cosine similarity metric from its IVF-Flat search backend.”
+13.) need of normalization in order to use the cosine distance metric
+“All protein embeddings were L2-normalized prior to indexing so that cosine similarity could be approximated using Euclidean distance across all ANN methods.”
+
+
+14.) normalization is happening inside of cosine, if you do normalization before cosine then you must only do the dot product, no need for cosine
+    cos(a,b) = a dot b / norm(a) * norm(b)

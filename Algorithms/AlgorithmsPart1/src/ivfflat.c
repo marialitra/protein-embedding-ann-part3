@@ -499,7 +499,8 @@ IVFFlatIndex* lloydAlgorithm(Dataset* subset, int kclusters, bool use_cosine)
     index->centroids = info->centroids;
     index->data_type = subset->data_type;
     index->lists = calloc(kclusters, sizeof(InvertedList));
-        index->use_cosine = use_cosine;
+    index->use_cosine = use_cosine;
+    
     if (!index->lists)
     {
         perror("calloc lists");
