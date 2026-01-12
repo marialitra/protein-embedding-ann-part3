@@ -112,4 +112,5 @@ the one with the grater blast identity.
 
 
 14.) normalization is happening inside of cosine, if you do normalization before cosine then you must only do the dot product, no need for cosine
-    cos(a,b) = a dot b / norm(a) * norm(b)
+    cos(a,b) = a dot b / norm(a) * norm(b)\
+

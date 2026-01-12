@@ -847,7 +847,7 @@ def main():
 						help="ANN algorithm to use (or 'all' to run all methods)")
 	
 	# Global Parameters
-	parser.add_argument("-N", type=int, default=50, help="Number of nearest neighbors")
+	parser.add_argument("-N", type=int, default=10, help="Number of nearest neighbors")
 	parser.add_argument("-R", type=float, default=0.5, help="Range search radius (for range search mode)")
 	parser.add_argument("-range", type=bool, default=False, help="Flag to enable Range Search")
 	parser.add_argument("-seed", type=int, default=42, help="Random seed")
