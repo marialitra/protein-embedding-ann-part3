@@ -1,6 +1,7 @@
+
 # Remote Homolog Search using Protein Embeddings & Approximate Nearest Neighbor Methods
 
-## Authors:
+## Authors
 
 - _Lytra Maria - 1115202200089_
 - _Mylonaki Danai - 1115202200114_
@@ -12,6 +13,7 @@ This project tackles remote protein homology detection: identifying proteins wit
 We leverage protein embeddings from the pretrained ESM-2 model (facebook/esm2_t6_8M_UR50D) and adapt Approximate Nearest Neighbor (ANN) algorithms from prior assignments for efficient similarity search in embedding space.
 
 Key features:
+
 - **Embedding generation** from FASTA files via ESM-2 (mean pooling on last-layer representations).
 - **ANN search** with methods: Euclidean LSH, Hypercube, IVF-Flat, IVFPQ, Neural LSH (or "all").
 - **Evaluation** against BLAST baseline: Recall@N, QPS, and biological interpretation (e.g., remote homologs via UniProt/Pfam/GO annotations).
@@ -29,7 +31,8 @@ The project is implemented in Python 3.10+ on Linux, integrating C binaries from
 
 Contains shared ANN code reused for protein domain.
 
-#### Subdirectories & Files
+#### Subdirectories & Files in `Algorithms`
+
 - **`AlgorithmsPart1/`**: C-based ANN cores (LSH, Hypercube, IVF-Flat, IVFPQ).
 - **`Data/`**: Sample datasets (MNIST, SIFT) for testing prior algorithms.
 - **`knngraphs/`**: KNN graphs output from IVFFlat.
@@ -38,6 +41,7 @@ Contains shared ANN code reused for protein domain.
 - **`output.txt`**: Sample output from Assignment 2 runs.
 
 #### Source Files in `Algorithms/src/`
+
 Modular Python scripts with documentation. Used for Neural LSH and wrappers.
 
 - **`bruteforce.py`**: Runs brute-force KNN on train/query sets; saves results (.npy) and meta (params, avg time).
@@ -53,6 +57,7 @@ Modular Python scripts with documentation. Used for Neural LSH and wrappers.
 - **`utils.py`**: Parsing checks, filename generation, CSR building, training output saving/loading, data normalization.
 
 #### Subdirectories & Files in `Algorithms/AlgorithmsPart1/`
+
 C implementation for core ANN algorithms.
 
 - **`Data/`**: MNIST/SIFT datasets.
@@ -64,6 +69,7 @@ C implementation for core ANN algorithms.
 - **`search`**: Compiled executable (used in Part3 for ANN calls).
 
 #### Source Files in `Algorithms/AlgorithmsPart1/src/`
+
 C implementations matching headers.
 
 - **`datasets.c`**: Processes MNIST/SIFT datasets.
@@ -80,6 +86,7 @@ C implementations matching headers.
 - **`utils.c`**: Shared math (dot product, Euclidean dist, L2 norm, Hamming dist).
 
 #### Header Files in `Algorithms/AlgorithmsPart1/include/`
+
 Declarations for C functions/structures.
 
 - **`datasets.h`**: Dataset utilities (MNIST/SIFT).
@@ -101,6 +108,7 @@ Declarations for C functions/structures.
 Protein homology pipeline.
 
 #### Subdirectories & Files
+
 - **`Data/`**: Protein datasets (swissprot.fasta, targets.fasta).
 - **`output/`**: Generated files (see below).
 - **`src/`**: Python scripts (see below).
@@ -109,6 +117,7 @@ Protein homology pipeline.
 - **`requirements.txt`**: Required libraries (pip install -r).
 
 #### Output Subdirectories in `Part3/output/`
+
 Organized results from pipeline steps.
 
 - **`blast/`**: BLAST raw/processed outputs (e.g., tabular results, logs).
@@ -117,6 +126,7 @@ Organized results from pipeline steps.
 - **`search/`**: ANN results, final reports (e.g., per-query summaries).
 
 #### Source Files in `Part3/src/`
+
 ESM-2 integration and ANN adaptation for proteins.
 
 - **`filter_blast.py`**: Filters BLAST (outfmt 6) by E-value/top-N (dedup subjects); ground truth TSV.
@@ -144,7 +154,6 @@ OR
 2. Build C binaries: Navigate to `Algorithms/` and run `make` (for Assignment 2). Then to `Algorithms/AlgorithmsPart1/` and run `make`.
 3. For BLAST: Ensure NCBI BLAST+ is installed and in PATH.
 
-
 ## Usage
 
 Use the `Part3/Makefile` for common workflows. It supports embedding generation on subsets, search benchmarks, BLAST runs, and grid search.
@@ -158,6 +167,7 @@ make emb_50k
 # 2. Run full benchmark (ANN + BLAST + evaluation + reports)
 make search
 ```
+
 → **`make search`** is the **main entry point** you should normally use.  
 It calls `protein_search.py` with `-method all` by default and internally handles everything:
 
@@ -171,6 +181,7 @@ It calls `protein_search.py` with `-method all` by default and internally handle
 This guarantees perfect consistency between ANN's top-N neighbors and BLAST's ground-truth top-N — you don't need to run `make blast` separately or worry about matching N values manually.
 
 ### Makefile Targets
+
 - **`make emb_1k`**: Generate embeddings for small subset (Data/subset_1k.fasta) → output/embeddings/vectors.dat.
 - **`make emb_50k`**: Generate embeddings for larger subset (Data/swissprot_50k.fasta) → output/embeddings/vectors_50k.dat (uses batch-size 64).
 - **`make search`**: Run ANN search on vectors_50k.dat with queries (targets.fasta); method="all" → output/search/results.txt.
@@ -182,7 +193,8 @@ This guarantees perfect consistency between ANN's top-N neighbors and BLAST's gr
 - **`make grid_search`**: Run hyperparameter tuning; method="all" (override via `make grid_search method=lsh`).
   - Outputs per-config results in output/grid_search/.
 
-### Direct Script Usage (As per Assignment)Note: We chose "neural" as the keyword for Neural LSH to align with the assignment's terminology ("Neural LSH").
+### Direct Script Usage (As per Assignment)Note: We chose "neural" as the keyword for Neural LSH to align with the assignment's terminology ("Neural LSH")
+
 - **Generate Embeddings**: `python Part3/src/protein_embed.py -i Data/swissprot.fasta -o output/embeddings/protein_vectors.dat`
 - **Search Benchmark**: `python Part3/src/protein_search.py -d output/embeddings/protein_vectors.dat -q Data/targets.fasta -o output/search/results.txt -method <all|lsh|hypercube|neural|ivfflat|ivfpq>`
   - Note: We chose "neural" as the keyword for Neural LSH to align with the assignment's terminology.
@@ -198,6 +210,7 @@ When a method fails to complete:
 This prevents stale or misleading results from previous/failed executions.
 
 ### Customizing Parameters
+
 - **Top-N (N) for ANN/Recall**: Use `-N <value>` flag in `protein_search.py` (default: 10 for neighbor tables; Recall@N uses Makefile's N for BLAST ground truth).
 - **Algorithm Hyperparameters**: Defaults are tuned via grid search (best configs in code). Override via flags in `protein_search.py` (see parse_files.py for options):
   - LSH: `-k 2 -L 5 --lsh-w 20.0`
