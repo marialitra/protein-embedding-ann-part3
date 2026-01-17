@@ -38,7 +38,6 @@ Contains shared ANN code reused for protein domain.
 - **`knngraphs/`**: KNN graphs output from IVFFlat.
 - **`src/`**: Python wrappers and Neural LSH from Assignment 2.
 - **`Makefile`**: Builds Python/C components for Assignment 2.
-- **`output.txt`**: Sample output from Assignment 2 runs.
 
 #### Source Files in `Algorithms/src/`
 
