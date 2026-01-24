@@ -116,6 +116,8 @@ Protein homology pipeline.
 - **`Makefile`**: Builds/runs Part3 components (e.g., BLAST).
 - **`ReadMe.md`**: This file! (Project guide).
 - **`requirements.txt`**: Required libraries (pip install -r).
+- **`Biological Report.pdf`**: Report based on the biology of the project.
+- **`Experimental Report.pdf`**: Report about the experiments throughout the project.
 
 #### Output Subdirectories in `Part3/output/`
 
@@ -123,7 +125,7 @@ Organized results from pipeline steps.
 
 - **`blast/`**: BLAST raw/processed outputs (e.g., tabular results, logs).
 - **`embeddings/`**: Protein embeddings (.dat vectors, _ids.txt mappings).
-- **`evaluation/`**: Mardkown for biology report.
+- **`evaluation/`**: Markdown and helpers for biology report.
 - **`search/`**: ANN results, final reports (e.g., per-query summaries).
 
 #### Source Files in `Part3/src/`
