@@ -8,7 +8,11 @@
 
 ## Main Idea
 
-This project tackles remote protein homology detection: identifying proteins with similar structure or function despite low sequence identity (<30% – the "Twilight Zone"), where tools like BLAST often fail.
+This project extends the work developed in previous assignments by applying Approximate Nearest Neighbor (ANN) methods to a real-world problem in computational biology.
+
+In [Part 1](https://github.com/PoiLson/ann-search-algorithms-part1), we implemented classical ANN algorithms (LSH, Hypercube, IVF-Flat, IVFPQ), while in [Part 2](https://github.com/marialitra/ann-search-algorithms-part2) we introduced a learning-based approach using Neural LSH.
+
+Building on these foundations, the current project tackles remote protein homology detection: identifying proteins with similar structure or function despite low sequence identity (<30% – the "Twilight Zone"), where tools like BLAST often fail.
 
 We leverage protein embeddings from the pretrained ESM-2 model (facebook/esm2_t6_8M_UR50D) and adapt Approximate Nearest Neighbor (ANN) algorithms from prior assignments for efficient similarity search in embedding space.
 
