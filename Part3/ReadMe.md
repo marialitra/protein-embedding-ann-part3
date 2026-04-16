@@ -3,8 +3,8 @@
 
 ## Authors
 
-- _Lytra Maria - 1115202200089_
-- _Mylonaki Danai - 1115202200114_
+- **Lytra Maria** — [GitHub](https://github.com/marialitra)
+- **Mylonaki Danai** — [GitHub](https://github.com/PoiLson)
 
 ## Main Idea
 
@@ -21,6 +21,10 @@ Key features:
 - **Reports** with per-query summaries, neighbor tables, and bio comments.
 
 The project is implemented in Python 3.10+ on Linux, integrating C binaries from Assignment 1 for ANN cores.
+
+## Dataset Structure
+
+For more details about the dataset structure, see [datasets.md](datasets.md).
 
 ## Project Structure
 
