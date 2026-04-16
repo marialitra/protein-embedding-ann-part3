@@ -26,10 +26,6 @@ Key features:
 
 The project is implemented in Python 3.10+ on Linux, integrating C binaries from Assignment 1 for ANN cores.
 
-## Dataset Structure
-
-For more details about the dataset structure, see [datasets.md](datasets.md).
-
 ## Datasets
 
 This repository already includes the protein datasets required for Part 3.
