@@ -1,5 +1,14 @@
 ## Datasets
 
+For the current protein homology pipeline (Part 3), the required protein datasets are already included in the repository under the [`Part3/Data/`](Part3/Data) directory.
+
+If you wish to reproduce the pipeline from scratch or use different data, you can download protein sequences from publicly available databases such as:
+
+- [UniProt / SwissProt](https://www.uniprot.org/)
+- FASTA format datasets (e.g., SwissProt subsets)
+
+The pipeline expects FASTA files as input for embedding generation.
+
 ### MNIST Dataset
 
 The `input.dat` file for the MNIST dataset is a **Big-Endian binary file** with the following structure:
